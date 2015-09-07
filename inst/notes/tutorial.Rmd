@@ -9,9 +9,15 @@ output:
 
 ## Install the package 
 
-You may navigate to the source package and use `install.packages(filename)`, or install the package directly from github. 
+You may navigate to the source package and use 
 
 
+```{r, eval = FALSE}
+install.packages("DecisionCurve_0.1.tar.gz", repos = NULL, type = "source")
+```
+
+ or install the package directly from github. 
+ 
 ```{r, eval = FALSE}
 ## install.packages("devtools")
 library(devtools)
