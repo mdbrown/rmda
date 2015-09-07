@@ -9,9 +9,15 @@
 #' 
 #' ## Install the package 
 #' 
-#' You may navigate to the source package and use `install.packages(filename)`, or install the package directly from github. 
+#' You may navigate to the source package and use 
 #' 
 #' 
+## ---- eval = FALSE-------------------------------------------------------
+## install.packages("DecisionCurve_0.1.tar.gz", repos = NULL, type = "source")
+
+#' 
+#'  or install the package directly from github. 
+#'  
 ## ---- eval = FALSE-------------------------------------------------------
 ## ## install.packages("devtools")
 ## library(devtools)
@@ -54,11 +60,11 @@ DecisionCurve(dcaData,
 #' 
 #' ## Tweaking the defaults 
 #' 
-#' Fine tune the thresholds, move the legend, and change linewidth and colors. Here we are calculating many more points on the curve. 
+#' Fine tune the thresholds, move the legend, and change linewidth and colors. Here we are calculating many more points on the curve (see the 'thresholds' setting).
 ## ------------------------------------------------------------------------
 DecisionCurve(dcaData,
               outcome = "Cancer", predictors = c("BasicModel", "FullModel"), 
-              thresholds = seq(0, .4, by = .001), #
+              thresholds = seq(0, .4, by = .001), # calculate thresholds from 0-0.4 at every 0.001 increment. 
               bootstraps = 25, 
               legend.position = "bottomleft",  #lwd and col correspond to order in predictors 
               lwd = c(3, 2),
@@ -66,7 +72,7 @@ DecisionCurve(dcaData,
 
 
 #' 
-#' #### No confidence intervals, cost:benefit ratio axis, or legend
+#' No confidence intervals, cost:benefit ratio axis, or legend
 #' 
 ## ------------------------------------------------------------------------
 DecisionCurve(dcaData,
@@ -79,7 +85,7 @@ DecisionCurve(dcaData,
               ylim = c(-.1, 1))
 
 #' 
-#' #### Set specific cost:benefit ratios. 
+#'  Set specific cost:benefit ratios. 
 #' 
 ## ------------------------------------------------------------------------
 DecisionCurve(dcaData,
@@ -91,7 +97,7 @@ DecisionCurve(dcaData,
 
 
 #' 
-#' #### Plot net benefit instead of standardize net benefit, change confidence interval level.
+#' Plot net benefit instead of standardize net benefit, change confidence interval level.
 #' 
 ## ------------------------------------------------------------------------
 DecisionCurve(dcaData,
@@ -103,7 +109,7 @@ DecisionCurve(dcaData,
               confidence.intervals = 0.90) #90% pointwise CI's
 
 #' 
-#' #### Create your own legend!
+#' Add your own legend.
 #' 
 ## ------------------------------------------------------------------------
 #plot the curve with legend.postion = "none"
