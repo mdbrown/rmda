@@ -1,6 +1,6 @@
 #' Plot decision curves
 #'
-#'Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probabilty threshold used to categorize observations as 'high risk.'  Bootstrap confidence intervals are displayed as well. This package is a companion to the manuscript 'Kerr. et. al (put ref here.)'.
+#'Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probabilty threshold used to categorize observations as 'high risk.'  Bootstrap confidence intervals are displayed as well. This package is a companion to the manuscript '(put ref here.)'.
 #'
 #' @param data data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.
 #' @param outcome Name of outcome of interest found in data. Within 'data', the outcome variable must be a numeric vector of 0's and 1's.

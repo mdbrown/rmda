@@ -20,7 +20,7 @@ Add_CostBenefit_Axis(xlim, cost.benefits, n.cost.benefits = 6, line = 4,
 List with components
 }
 \description{
-If you
+Add cost benefit ratio axis to a decision curve plot.
 }
 \examples{
 #helper function

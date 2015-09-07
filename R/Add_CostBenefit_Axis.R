@@ -1,6 +1,5 @@
 #' Add cost benefit ratio axis to a decision curve plot.
 #'
-#' If you
 #'
 #' @param xlim
 #' @param cost.benefits Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print.
