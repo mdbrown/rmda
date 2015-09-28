@@ -1,7 +1,7 @@
 ---
-title: "DecisionCurve Tutorial"
+title: "DecisionCurve Tutorial (v.0.2)"
 author: "Marshall Brown"
-date: "September 6, 2015"
+date: "September 24, 2015"
 output: 
   html_document: 
     theme: cerulean
@@ -13,7 +13,7 @@ You may navigate to the source package and use
 
 
 ```{r, eval = FALSE}
-install.packages("DecisionCurve_0.1.tar.gz", repos = NULL, type = "source")
+install.packages("../DecisionCurve_0.2.tar.gz", repos = NULL, type = "source")
 ```
 
  or install the package directly from github. 
@@ -26,18 +26,216 @@ install_github("mdbrown/DecisionCurve")
 
 ## Getting started 
 
-Load the package and the provided simulated data set. 
+Load the package and the provided simulated data set.  First we use the function `DecisionCurve` to create a decision curve object for a logistic model to predict cancer status using age, gender and smoking status. We then plot it using `PlotDecisionCurve`. 
 
 ```{r}
 library(DecisionCurve, quietly = TRUE)
-
-#helper function
-expit <- function(xx) exp(xx)/ (1+exp(xx))
 
 #load simulated data 
 data(dcaData)
 
 head(dcaData)
+
+set.seed(123)
+#first use DecisionCurve with the default settings (set bootstraps = 25 here to reduce computation time). 
+baseline.model <- DecisionCurve(Cancer~Age + Female + Smokes, #fitting a logistic model 
+                                
+                                data = dcaData, 
+                                bootstraps = 25)
+
+#plot the curve
+PlotDecisionCurve(baseline.model, curve.names = "baseline model")
+
+```
+
+Next, we create a decision curve with two markers added to the original baseline model. We then pass a list with both decision curves to `PlotDecisionCurve' to plot both curves. 
+
+```{r}
+set.seed(123)
+full.model <- DecisionCurve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+              data = dcaData, 
+              bootstraps = 50)
+
+#since we want to plot more than one curve, we pass a list of 'DecisionCurve' objects to the plot
+PlotDecisionCurve( list(baseline.model, full.model), 
+                   curve.names = c("Baseline model", "Full model")) 
+
+#see all available options using 
+?DecisionCurve
+?PlotDecisionCurve
+```
+
+## Tweaking the defaults 
+
+Fine tune the thresholds, move the legend, and change linewidth and colors. Here we are calculating many more points on the curve (see the 'thresholds' setting).
+```{r}
+
+baseline.model <- DecisionCurve(Cancer~Age + Female + Smokes,
+                                data = dcaData, 
+                                 thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment. 
+                                bootstraps = 25)
+
+full.model <- DecisionCurve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+                            data = dcaData, 
+                            thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment. 
+                            bootstraps = 25)
+
+
+PlotDecisionCurve( list(baseline.model, full.model), 
+                   curve.names = c("Baseline model", "Full model"),
+                   col = c("blue", "red"), 
+                   lty = c(1,2), 
+                   lwd = c(3,2, 2, 1),  # the first two correspond to the decision curves, then 'all' and then 'none' 
+                   legend.position = "bottomright") #adjust the legend position
+
+```
+
+No confidence intervals, cost:benefit ratio axis, or legend
+
+```{r}
+PlotDecisionCurve( list(baseline.model, full.model), 
+                   curve.names = c("Baseline model", "Full model"),
+                   col = c("blue", "red"), 
+                   confidence.intervals = FALSE,  #remove confidence intervals
+                   cost.benefit.axis = FALSE, #remove cost benefit axis
+                   legend.position = "none") #remove the legend 
+
+```
+
+ Set specific cost:benefit ratios. 
+
+```{r}
+PlotDecisionCurve( list(baseline.model, full.model), 
+                   curve.names = c("Baseline model", "Full model"),
+                   col = c("blue", "red"), 
+                  cost.benefits = c("1:1000", "1:4", "1:9", "2:3", "1:3"),  #set specific cost benefits
+                   legend.position = "bottomright") 
+
+```
+
+Plot net benefit instead of standardize net benefit, change confidence interval level.
+
+```{r}
+
+baseline.model <- DecisionCurve(Cancer~Age + Female + Smokes,
+                                data = dcaData, 
+                                thresholds = seq(0, .4, by = .01),
+                                confidence.intervals = 0.9, #calculate 90% confidence intervals
+                                bootstraps = 25)
+
+full.model <- DecisionCurve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+                            data = dcaData, 
+                            thresholds = seq(0, .4, by = .01),
+                            confidence.intervals = 0.9, #calculate 90% confidence intervals
+                            bootstraps = 25)
+
+PlotDecisionCurve( list(baseline.model, full.model), 
+                   curve.names = c("Baseline model", "Full model"),
+                   col = c("blue", "red"), 
+                   ylim = c(-0.05, 0.15), #set ylim
+                   lty = c(2,1), 
+                   standardize = FALSE, #plot Net benefit instead of standardized net benefit
+                   legend.position = "topright") 
+
+```
+
+# Plotting components of the decision curve. 
+
+We can also plot the components of the decision curve, namely the true positive fraction (aka sensitivity) and the false positive fraction (aka 1-specificity). 
+
+```{r}
+layout(mat = matrix(c(1, 2, 3), ncol = 1), heights = c(2, 2, 3))
+
+par(mar = c(2, 4, 2, 2) +0.1)
+
+#plot sensitivity
+PlotDecisionCurve( list(baseline.model, full.model), 
+                   curve.names = c("Baseline model", "Full model"),
+                   plot.type = "sensitivity", 
+                   xlab = "", 
+                   cost.benefit.axis = FALSE, 
+                   col = c("blue", "red"), 
+                   lty = c(2,1), 
+                   legend.position = "none") 
+
+#plot 1- specificity
+PlotDecisionCurve( list(baseline.model, full.model), 
+                   curve.names = c("Baseline model", "Full model"),
+                   plot.type = "specificity", 
+                   xlab = "", 
+                   cost.benefit.axis = FALSE, 
+                   col = c("blue", "red"), 
+                   lty = c(2,1), 
+                   legend.position = "right") 
+
+#plot (standardized) net benefit curves 
+PlotDecisionCurve( list(baseline.model, full.model), 
+                   curve.names = c("Baseline model", "Full model"),
+                   plot.type = "net benefit", 
+                   col = c("blue", "red"), 
+                   lty = c(2,1), 
+                   legend.position = "none") 
+
+par(mfrow = c(1,1))
+par(mar = c(5, 4, 4, 2) + 0.1)
+```
+
+
+
+```{r}
+#plot 'impact' plot. 
+PlotDecisionCurve( list(baseline.model, full.model), 
+                   curve.names = c("Baseline model", "Full model"),
+                   plot.type = "impact", 
+                   col = c("blue", "red"), 
+                   lty = c(2,1)) 
+
+PlotDecisionCurve(  full.model, 
+                   curve.names = c("Baseline model", "Full model"),
+                   plot.type = "impact", cost.benefit.axis = FALSE) 
+```
+# Providing fitted risk estimates 
+
+If a risk model has already been specified, and so no model fitting is needed, the user can specify `fitted.risks=TRUE` and provide them in the formula. No model fitting will be done and bootstrap confidence intervals will be. 
+
+# Cross-validation 
+
+# Printing estimates 
+
+DecisionCurve also outputs all calculations and point estimates when assigned to an object. 
+
+```{r}
+full.model <- DecisionCurve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+                            data = dcaData, 
+                            thresholds = seq(0, .4, by = .05),
+                            bootstraps = 25) 
+```
+
+The best way to look at point estimates (w/ci's) is to use `summary`. 
+
+```{r}
+summary(full.model) #outputs standardized net benefit by default
+```
+
+you can also choose which measure to report, and how many decimal places to print. 
+
+```{r}
+summary(full.model, nround = 2, measure = "TPF") #outputs standardized net benefit by default
+```
+
+
+
+You can also access the data directly. `my.dc$derived.data` holds the net benefit and it's components. 
+
+```{r}
+head(full.model$derived.data)
+```
+
+
+```{r}
+
+#helper function
+expit <- function(xx) exp(xx)/ (1+exp(xx))
 
 # Assume we have access to previously published models 
 # (or models built using a training set)
@@ -49,138 +247,44 @@ dcaData$BasicModel <- with(dcaData, expit(-7.3 + 0.18*Age - 0.08*Female + 0.80*S
 # Model using demographic + markers : Age, Female, Smokes, Marker1 and Marker2. 
 dcaData$FullModel <- with(dcaData, expit(-10.5 + 0.22*Age  - 0.01*Female + 0.91*Smokes + 2.03*Marker1 - 1.56*Marker2))
 
-#use DecisionCurve defaults (set bootstraps = 25 here to reduce computation time). 
-DecisionCurve(dcaData,
-              outcome = "Cancer", predictors = c("BasicModel", "FullModel"), 
-              bootstraps = 25)
 
-#see all available options using 
-?DecisionCurve
-```
+full.model <- DecisionCurve(Cancer~FullModel,
+                            data = dcaData,
+                            fitted.risk = TRUE, 
+                            thresholds = seq(0, .4, by = .05),
+                            bootstraps = 25) 
 
-## Tweaking the defaults 
 
-Fine tune the thresholds, move the legend, and change linewidth and colors. Here we are calculating many more points on the curve (see the 'thresholds' setting).
-```{r}
-DecisionCurve(dcaData,
-              outcome = "Cancer", predictors = c("BasicModel", "FullModel"), 
-              thresholds = seq(0, .4, by = .001), # calculate thresholds from 0-0.4 at every 0.001 increment. 
-              bootstraps = 25, 
-              legend.position = "bottomleft",  #lwd and col correspond to order in predictors 
-              lwd = c(3, 2),
-              col = c("red", "blue"))
+PlotDecisionCurve(full.model, legend.position = "none")
 
 ```
 
-No confidence intervals, cost:benefit ratio axis, or legend
+
+# Providing fitted risks
+
 
 ```{r}
-DecisionCurve(dcaData,
-              outcome = "Cancer", predictors = c("BasicModel", "FullModel"), 
-              thresholds = seq(0, .4, by = .01), 
-              bootstraps = 25, 
-              legend.position = "none", lty = c(2, 1),
-              confidence.intervals = "none", 
-              cost.benefit.axis = FALSE, 
-              ylim = c(-.1, 1))
-```
 
- Set specific cost:benefit ratios. 
+# Assume we have access to previously published models 
+# (or models built using a training set)
+# that we can use to predict the risk of cancer. 
 
-```{r}
-DecisionCurve(dcaData,
-              outcome = "Cancer", predictors = c("BasicModel", "FullModel"), 
-              thresholds = seq(0, .4, by = .01), 
-              bootstraps = 25, 
-              legend.position = "bottomleft", lty = c(2, 1),
-              cost.benefits = c("1:1000", "1:4", "1:9", "2:3", "1:3"))
+# Basic model using demographic variables: Age, Female, Smokes. 
+dcaData$BasicModel <- with(dcaData, expit(-7.3 + 0.18*Age - 0.08*Female + 0.80*Smokes ) )
 
-```
+# Model using demographic + markers : Age, Female, Smokes, Marker1 and Marker2. 
+dcaData$FullModel <- with(dcaData, expit(-10.5 + 0.22*Age  - 0.01*Female + 0.91*Smokes + 2.03*Marker1 - 1.56*Marker2))
 
-Plot net benefit instead of standardize net benefit, change confidence interval level.
-
-```{r}
-DecisionCurve(dcaData,
-              outcome = "Cancer", predictors = c("BasicModel", "FullModel"), 
-              thresholds = seq(0, .4, by = .01), 
-              bootstraps = 25, lty = c(2, 1),
-              legend.position = "bottomleft", 
-              standardize = FALSE,         #don't standardize the net benefit
-              confidence.intervals = 0.90) #90% pointwise CI's
-```
-
-Add your own legend.
-
-```{r}
-#plot the curve with legend.postion = "none"
-DecisionCurve(dcaData,
-              outcome = "Cancer", predictors = c("BasicModel", "FullModel"), 
-              thresholds = seq(0, .4, by = .01), 
-              bootstraps = 25, 
-              lty = c(2,1), 
-              lwd = c(2, 2, 2, 2), 
-              col = c("red", "blue", "grey66","black"), 
-              legend.position = "none") 
-
-#add your own legend. 
-legend("bottomleft", 
-       lwd = 2, lty = c(2, 1, 1, 1), 
-       col = c("red", "blue", "grey66", "black"), 
-       legend = c("Demographic model", "Demographic model +\n biomarkers", "Treat all", "Treat none"), 
-       cex = .8 )
-
-```
-
-# Printing estimates 
-
-DecisionCurve also outputs all calculations and point estimates when assigned to an object. 
-
-```{r}
-my.dc <- DecisionCurve(dcaData,
-                       outcome = "Cancer", predictors = c("BasicModel", "FullModel"), 
-                       thresholds = seq(0, 0.4, by = 0.05), 
-                       bootstraps = 25, 
-                       plot = FALSE) #don't plot curves. 
-```
-
-The best way to look at point estimates (w/ci's) is to use `summary`. 
-
-```{r}
-summary(my.dc)
-```
-
-You can also access the data directly. `my.dc$plot.data` holds the (standardized) net benefits for each predictor in wide form. 
-
-```{r}
-head(my.dc$plot.data$estimates)
-head(my.dc$plot.data$ci_lower) #same for 'ci_upper' 
-```
-
-Alternatively, `my.dc$derived.data` give acess to all components of the net benefit calculations. It shows data for each predictor in long form (and therefore is great for using with `ggplot2`). 
-
-```{r}
-head(my.dc$derived.data)
-```
-
-
-# ggplot2 
-Unfortunately, ggplot2 doesn't allow for multiple axis to be printed, so we are unable to plot the cost:benefit ratio axis. 
-
-```{r}
 library(ggplot2)
 
 my.dc <- DecisionCurve(dcaData,
               outcome = "Cancer", predictors = c("BasicModel", "FullModel"), 
-              thresholds = seq(0, .4, by = .001), #
+              thresholds = seq(0, .4, by = .005),
+              confidence.intervals = 'none',#
               bootstraps = 25, 
               plot = FALSE)
 
 ggdat <- my.dc$derived.data
-
-#we need to remove the confidence intervals calculated for "all", since they aren't of interest. 
-ggdat[ggdat$predictor == "all", "sNB_upper"] <- NA
-ggdat[ggdat$predictor == "all", "sNB_lower"] <- NA
-
 
 ggplot(ggdat,
        aes(threshold, sNB, 
@@ -200,7 +304,15 @@ ggplot(ggdat,
 ```
 
 
+# Cross-validated decision curves
 
+
+
+
+1. PlotClinicalImpact impact plots- only allow one model at a time
+2. ClinicalImpactTable impact tables 
+
+3. PlotROCcomponents 
 
 
 

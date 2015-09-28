@@ -1,34 +1,18 @@
-#' Plot decision curves
+#' Calculate decision curves
 #'
 #'Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probabilty threshold used to categorize observations as 'high risk.'  Bootstrap confidence intervals are displayed as well. This package is a companion to the manuscript '(put ref here.)'.
 #'
+#' @param formula an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm.
 #' @param data data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.
-#' @param outcome Name of outcome of interest found in data. Within 'data', the outcome variable must be a numeric vector of 0's and 1's.
-#' @param predictors Vector of names for risk predictors to calculate decision curves. 'data' must have columns corresponding to the names provided consisting of predicted risks Pr(outcome = 1 | predictor). Risks must fall between 0 and 1.
+#' @param family a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.
+#' @param fitted.risk logical (default FALSE) indicating whether the predictor provided Risks must fall between 0 and 1.
 #' @param thresholds Numeric vector of high risk thresholds to use when plotting and calculating net benefit values.
-#' @param standardize logical (default TRUE) indicating whether to use the standardized net benefit (NB/disease prevalence) or not.
 #' @param confidence.intervals Numeric (default 0.95 for 95\% confidence bands) level of bootstrap confidence intervals to plot. Set as NA or 'none' to remove confidence intervals. See details for more information.
 #' @param bootstraps Number of bootstrap replicates to use to calculate confidence intervals (default 500).
-#' @param cost.benefit.axis logical (default TRUE) indicating whether to print an additional x-axis showing relative cost:benefit ratios in addition to risk thresholds.
-#' @param n.cost.benefits number of cost:benefit ratios to print if cost.benefit.axis = TRUE (default n.cost.benefit = 6).
-#' @param cost.benefits Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print.
-#' @param legend.position One of "topright" (default), "top", "topleft", "left", "bottomleft", "bottom", "bottomright", "right", or "none" indicating where the legend should be printed.
-#' @param col vector of color names to be used in plotting corresponding to the 'predictors' given. Default colors will be chosen from rainbow(..., v = .8). See details for more information on plot parameters.
-#' @param lty vector of linetypes to plot corresponding to 'predictors'.
-#' @param lwd vector of linewidths to plot corresponding to 'predictors'.
-#' @param xlim vector giving c(min, max) of x-axis. Defaults to c(min(thresholds), max(thresholds)).
-#' @param ylim vector giving c(min, max) of y-axis.
-#' @param xlab label of main x-axis.
-#' @param ylab label of y-axis.
-#' @param cost.benefit.xlab label of cost:benefit ratio axis.
-#' @param plot Logical (default TRUE) indicating whether to plot decision curves.
-#' @param ... other options directly send to plot()
-#'
 #' @details  Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. Bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples. Note that the confidence intervals calculated assume the risk prediction tool
 #' @return List with components
 #' \itemize{
-#'   \item plot.data: a list with further data.frame components 'estimates', 'ci_lower', and 'ci_upper' showing point estimates of (standardized) net benefits, and lower and upper ci's, respectively.
-#'   \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPF':false positive fraction, 'TPF': true positive fraction, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'predictor': name of predictor, 'x_lower', 'x_upper': the lower and upper confidence bands for NB or sNB.
+#'   \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPF':false positive fraction, 'TPF': true positive fraction, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'predictor': name of predictor, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, NB and sNB.
 #'   \item standardized: Whether standardized net benefit or net benefit is returned.
 #'   \item call: matched function call.
 #' }
@@ -57,99 +41,119 @@
 #'
 #' @export
 
-DecisionCurve <- function(data,
-                          outcome,
-                          predictors,
+DecisionCurve <- function(formula,
+                          data,
+                          family = binomial(link = "logit"),
+                          fitted.risk = FALSE,
                           thresholds = seq(0, 1, by = .01),
                           standardize = TRUE,
                           confidence.intervals = 0.95,
-                          bootstraps = 500,
-                          cost.benefit.axis = TRUE,
-                          n.cost.benefits = 6,
-                          cost.benefits,
-                          legend.position = "topright",
-                          col,
-                          lty, lwd = 2,
-                          xlim, ylim,
-                          xlab = "Risk Threshold", ylab,
-                          cost.benefit.xlab = "Cost:Benefit Ratio",
-                          plot = TRUE,
-                          ...){
-  call <- match.call()
+                          bootstraps = 500){
+ call <- match.call()
 
-  #check that inputs are ok, return complete cases
-  cc <- check_DC_Inputs(data = data,
-                  outcome = outcome,
-                  predictors = predictors,
-                  thresholds = thresholds,
-                  standardize = standardize,
-                  confidence.intervals = confidence.intervals,
-                  bootstraps = bootstraps,
-                  legend.position = legend.position,
-                  cost.benefit.axis = cost.benefit.axis,
-                  cost.benefits = cost.benefits,
-                  n.cost.benefits = n.cost.benefits)
+  #retreive outcome
+  outcome <- data[[all.vars(formula[[2]])]]
+  ## check inputs
+   #if fitted risks are provided, then there can only be one term on the rhs of formula
+   #and the provided risks must be
+  if(fitted.risk){
+    message("Fitted risks are provided, no model fitting will be done by DecisionCurve. Bootstrap confidence intervals are conditional on the model used to fit risks.")
+    if(length(all.vars(formula[[3]])) > 1) stop("When fitted.risk = TRUE, there can only be one term  (denoting the fitted risks) on the right hand side of the formula provided.")
 
-  data <- data[cc, c(outcome, predictors)]
+    provided.risks <-  data[[Reduce(paste, deparse(formula[[3]]))]] #get the name of the fitted risk variable from formula.
+    if(min(provided.risks) < 0 | max(provided.risks) > 1) stop("When fitted.risks = TRUE, all risks provided must be between 0 and 1.")
 
-  legend.position <- legend.position[1]
-  n.cost.benefits <- n.cost.benefits[1]
-  standardize <- standardize[1]
-
+  }
+  #...
 
   #calculate curves
-  dc.data <- get_DecisionCurve(data, outcome, predictors,
-                               threshold = thresholds,
-                               standardize = standardize,
-                               confidence.intervals = confidence.intervals,
-                               bootstraps = bootstraps)
+  #first we fit the model
 
+  #extract the model name from formula
+  predictors <- c(Reduce(paste, deparse(formula[[3]])), "all", "none")
+  predictor.names <- c(Reduce(paste, deparse(formula)), "all", "none")
 
-  #set some defaults if needed
-  if(missing(xlim)) xlim = range(thresholds)
+  #indicate whether we are fitting a model with a formula or not
+  #the last two are FALSE since they correspond to 'all' and 'none'
+  formula.ind <- c(ifelse(fitted.risk, FALSE, TRUE), FALSE, FALSE)
 
-  if(missing(lty)) lty = rep(1, length(predictors) + 2)
-  if(length(lty) ==1) lty = rep(lty, length(predictors) + 2)
-  if(length(lty) == length(predictors)) lty = c(lty, 1, 1)
+  data[["all"]] <- 1
+  data[["none"]] <- 0
 
-  if(missing(col)) col  = c(rainbow(length(predictors), v = .8), "grey66", "black")
-  if(length(col) == length(predictors)) col <- c(col, "grey66", "black")
+  n.preds <- length(predictors) #should always be three
 
-  if(missing(lwd)) lwd = 2
-  if(length(lwd) ==1) lwd <- rep(lwd, length(predictors))
-  if(length(lwd) == length(predictors)) lwd = c(lwd, 1, 1)
+  n.out <- length(predictors)*length(thresholds)
+  dc.data <- data.frame("thresholds" = numeric(n.out),
+                    "FPF" = numeric(n.out),"TPF" = numeric(n.out),
+                    "NB" = numeric(n.out), "sNB" = numeric(n.out),
+                    "rho" = numeric(n.out),"prob.high.risk" = numeric(n.out),
+                    "DP" = numeric(n.out),
+                    "method"= numeric(n.out))
 
-  if(missing(ylab)) ylab = ifelse(standardize, "Standardized Net Benefit", "Net Benefit")
+  #if ci's
+  #set up vars for bootstrap ci's and first calculate bootstrap indices
+  if(is.numeric(confidence.intervals))  {
 
-  #plot the curves
-  if(plot){
-  plot_DecisionCurve(xx = dc.data,
-                     predictors = predictors,
-                     standardize = standardize,
-                     confidence.intervals,
-                     cost.benefit.axis = cost.benefit.axis,
-                     cost.benefits = cost.benefits,
-                     n.cost.benefits = n.cost.benefits,
-                     cost.benefit.xlab = cost.benefit.xlab,
-                     xlab = xlab, ylab = ylab,
-                     col = col,
-                     lty = lty, lwd = lwd,
-                     xlim = xlim, ylim = ylim,
-                     legend.position = legend.position, ...)
+    #bootstrap sampling indices
+    B.ind <- matrix(nrow = nrow(data), ncol = bootstraps)
+    for(b in 1:bootstraps) B.ind[,b] <- sample.int(nrow(data), replace = TRUE)
+    dc.data <- add.ci.columns(dc.data)
   }
+
+  index = 1
+  n.pred = 1
+  for(i in 1:n.preds){
+
+    tmpNBdata <- calculate.nb(d = outcome,
+                              y = data[[predictors[[i]]]],
+                              rH = thresholds,
+                              formula = formula,
+                              family = family,
+                              data = data,
+                              formula.ind = formula.ind[i])
+
+    tmpNBdata$method <- predictor.names[[i]]
+
+    if(is.numeric(confidence.intervals)){
+      #calculate measures in each bootstrap
+      boot.data <- apply(B.ind, 2, function(x){
+      calculate.nb(d = outcome[x],
+                   y = data[[predictors[[i]] ]][x],
+                   rH = thresholds,
+                   formula = formula,
+                   family = family,
+                   data = data[x,],
+                   formula.ind = formula.ind[i])})
+
+      alpha = 1- confidence.intervals
+      #go through each measure and get the quantiles from the bootstrap distribution at each threshold
+      for(rtn in names(boot.data[[1]][-1])){
+        #collate the data from the measure estimates across bootstrap replicates
+        #so I can call apply next.
+        tmpdat <- sapply(boot.data, function(xx) xx[,rtn])
+
+        tmpNBdata[[paste(rtn, "_lower", sep = "")]] <- apply(tmpdat, 1, quantile, probs = alpha/2, type = 1, na.rm = TRUE)
+        tmpNBdata[[paste(rtn, "_upper", sep = "")]] <- apply(tmpdat, 1, quantile, probs = 1-alpha/2, type = 1, na.rm = TRUE)
+      }
+    }
+
+
+    dc.data[index:(length(thresholds)*n.pred),] <-  tmpNBdata
+    index = index + length(thresholds)
+    n.pred = n.pred + 1
+  }
+
+
+  dc.data$cost.benefit.ratio <- as.character(fractions(threshold_to_costbenefit(dc.data$thresholds)))
+  #find indices without a fraction and make them "xx/1"
+  add.dash1 <-  which(!is.element(1:nrow(dc.data), grep("/", dc.data$cost.benefit.ratio)))
+  dc.data$cost.benefit.ratio[add.dash1] <- paste(dc.data$cost.benefit.ratio[add.dash1], "/1", sep = "")
+  dc.data$cost.benefit.ratio <- gsub("/", ":", dc.data$cost.benefit.ratio)
+
+
+
   #return list of elements
-  xx.wide <- cast(dc.data, threshold+cost.benefit.ratio~predictor, value = ifelse(standardize, "sNB", "NB"))
- if(is.numeric(confidence.intervals)){
-  xx.lower <- cast(dc.data, threshold+cost.benefit.ratio~predictor, value = ifelse(standardize, "sNB_lower", "NB_lower"))
-  xx.upper <- cast(dc.data, threshold+cost.benefit.ratio~predictor, value = ifelse(standardize, "sNB_upper", "NB_upper"))
- }else{
-   xx.lower <- NULL
-   xx.upper <- NULL
- }
-  out <- list("plot.data" = list( "estimates" = xx.wide[,c("threshold", "cost.benefit.ratio", "all", predictors, "none")],
-                                  "ci_lower" = xx.lower[,c("threshold", "cost.benefit.ratio", "all", predictors, "none")],
-                                  "ci_upper" = xx.upper[,c("threshold", "cost.benefit.ratio", "all", predictors, "none")]),
-              "derived.data"  = dc.data,
+  out <- list("derived.data"  = dc.data,
               "standardized" = standardize,
               "confidence.intervals" = confidence.intervals,
               "call" = call)

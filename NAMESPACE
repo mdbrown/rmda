@@ -3,3 +3,4 @@
 S3method(summary,DecisionCurve)
 export(Add_CostBenefit_Axis)
 export(DecisionCurve)
+export(PlotDecisionCurve)

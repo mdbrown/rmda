@@ -1,7 +1,7 @@
 Package: DecisionCurve
 Type: Package
 Title: Calculate and Plot Decision Curves
-Version: 0.1
+Version: 0.2
 Date: 2015-08-04
 Author: Marshall Brown
 Maintainer:  <mdbrown@fredhutch.org>

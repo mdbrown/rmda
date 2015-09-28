@@ -4,7 +4,8 @@
 \alias{summary.DecisionCurve}
 \title{Displays a useful description of a DecisionCurve object}
 \usage{
-\method{summary}{DecisionCurve}(x, ..., nround = 3)
+\method{summary}{DecisionCurve}(x, ..., measure = c("sNB", "NB", "TPF",
+  "FPF"), nround = 3)
 }
 \arguments{
 \item{...}{other arguments ignored (for compatibility with generic)}

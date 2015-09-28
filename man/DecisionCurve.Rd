@@ -2,63 +2,31 @@
 % Please edit documentation in R/DecisionCurve.R
 \name{DecisionCurve}
 \alias{DecisionCurve}
-\title{Plot decision curves}
+\title{Calculate decision curves}
 \usage{
-DecisionCurve(data, outcome, predictors, thresholds = seq(0, 1, by = 0.01),
-  standardize = TRUE, confidence.intervals = 0.95, bootstraps = 500,
-  cost.benefit.axis = TRUE, n.cost.benefits = 6, cost.benefits,
-  legend.position = "topright", col, lty, lwd = 2, xlim, ylim,
-  xlab = "Risk Threshold", ylab, cost.benefit.xlab = "Cost:Benefit Ratio",
-  plot = TRUE, ...)
+DecisionCurve(formula, data, family = binomial(link = "logit"),
+  fitted.risk = FALSE, thresholds = seq(0, 1, by = 0.01),
+  standardize = TRUE, confidence.intervals = 0.95, bootstraps = 500)
 }
 \arguments{
+\item{formula}{an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm.}
+
 \item{data}{data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.}
 
-\item{outcome}{Name of outcome of interest found in data. Within 'data', the outcome variable must be a numeric vector of 0's and 1's.}
+\item{family}{a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.}
 
-\item{predictors}{Vector of names for risk predictors to calculate decision curves. 'data' must have columns corresponding to the names provided consisting of predicted risks Pr(outcome = 1 | predictor). Risks must fall between 0 and 1.}
+\item{fitted.risk}{logical (default FALSE) indicating whether the predictor provided Risks must fall between 0 and 1.}
 
 \item{thresholds}{Numeric vector of high risk thresholds to use when plotting and calculating net benefit values.}
-
-\item{standardize}{logical (default TRUE) indicating whether to use the standardized net benefit (NB/disease prevalence) or not.}
 
 \item{confidence.intervals}{Numeric (default 0.95 for 95\% confidence bands) level of bootstrap confidence intervals to plot. Set as NA or 'none' to remove confidence intervals. See details for more information.}
 
 \item{bootstraps}{Number of bootstrap replicates to use to calculate confidence intervals (default 500).}
-
-\item{cost.benefit.axis}{logical (default TRUE) indicating whether to print an additional x-axis showing relative cost:benefit ratios in addition to risk thresholds.}
-
-\item{n.cost.benefits}{number of cost:benefit ratios to print if cost.benefit.axis = TRUE (default n.cost.benefit = 6).}
-
-\item{cost.benefits}{Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print.}
-
-\item{legend.position}{One of "topright" (default), "top", "topleft", "left", "bottomleft", "bottom", "bottomright", "right", or "none" indicating where the legend should be printed.}
-
-\item{col}{vector of color names to be used in plotting corresponding to the 'predictors' given. Default colors will be chosen from rainbow(..., v = .8). See details for more information on plot parameters.}
-
-\item{lty}{vector of linetypes to plot corresponding to 'predictors'.}
-
-\item{lwd}{vector of linewidths to plot corresponding to 'predictors'.}
-
-\item{xlim}{vector giving c(min, max) of x-axis. Defaults to c(min(thresholds), max(thresholds)).}
-
-\item{ylim}{vector giving c(min, max) of y-axis.}
-
-\item{xlab}{label of main x-axis.}
-
-\item{ylab}{label of y-axis.}
-
-\item{cost.benefit.xlab}{label of cost:benefit ratio axis.}
-
-\item{plot}{Logical (default TRUE) indicating whether to plot decision curves.}
-
-\item{...}{other options directly send to plot()}
 }
 \value{
 List with components
 \itemize{
-  \item plot.data: a list with further data.frame components 'estimates', 'ci_lower', and 'ci_upper' showing point estimates of (standardized) net benefits, and lower and upper ci's, respectively.
-  \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPF':false positive fraction, 'TPF': true positive fraction, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'predictor': name of predictor, 'x_lower', 'x_upper': the lower and upper confidence bands for NB or sNB.
+  \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPF':false positive fraction, 'TPF': true positive fraction, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'predictor': name of predictor, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, NB and sNB.
   \item standardized: Whether standardized net benefit or net benefit is returned.
   \item call: matched function call.
 }

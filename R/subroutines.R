@@ -1,10 +1,16 @@
 
 
-
-calculate.nb <- function(y, d, rH){
+#calculate net benefit for a fitted risk or by fitting a risk model if formula is specified
+calculate.nb <- function(y, d, rH, formula, data, family, formula.ind){
   #predictor y,  estimated risk
   #disease indicator d
   #vector of high risk thresholds rH
+
+  if(formula.ind){
+     myglm <- do.call(glm, list("formula" = formula, "data" = data, "family" = family ))
+     y <- fitted(myglm)
+  }
+
 
   N = length(y)
 
@@ -26,7 +32,16 @@ calculate.nb <- function(y, d, rH){
   #standardized net benefit
   snb = nb/rho
 
-  out  = data.frame("threshold" = rH,  "FPF" = fpf ,"TPF" = tpf, "NB" = nb, "sNB" = snb, "rho" = rho)
+  #detection probability (for impact plots)
+  dp <- tpf*rho
+
+  prob.high.risk <- sum.I(rH, "<", y)/length(y)
+
+  out  = data.frame("threshold" = rH,
+                    "FPF" = fpf , "TPF" = tpf,
+                    "NB" = nb, "sNB" = snb,
+                    "rho" = rho, "prob.high.risk" = prob.high.risk,
+                    "DP" = dp)
 
  # AUC   = sum(sort(tpf, decreasing = FALSE)*(sort(fpf, decreasing = FALSE)-c(sort(fpf, decreasing = FALSE)[-1],0)))
 
@@ -35,7 +50,18 @@ calculate.nb <- function(y, d, rH){
 
 
 
+add.ci.columns <- function(x){
+  n.out = nrow(x)
 
+  x$FPF_lower <- NA; x$FPF_upper <- NA
+  x$TPF_lower <-NA; x$TPF_upper <- NA
+  x$NB_lower <-NA; x$NB_upper <- NA
+  x$sNB_lower <-NA; x$sNB_upper <- NA
+  x$rho_lower <- NA; x$rho_upper <- NA
+  x$prob.high.risk_lower = NA; x$prob.high.risk_upper =NA
+  x$DP_lower = NA; x$DP_upper =NA
+  x
+}
 
 
 VTM <- function(vc, dm)
