@@ -38,7 +38,7 @@ calculate.nb <- function(y, d, rH, formula, data, family, formula.ind){
   prob.high.risk <- sum.I(rH, "<", y)/length(y)
 
   out  = data.frame("threshold" = rH,
-                    "FPF" = fpf , "TPF" = tpf,
+                    "FPR" = fpf , "TPR" = tpf,
                     "NB" = nb, "sNB" = snb,
                     "rho" = rho, "prob.high.risk" = prob.high.risk,
                     "DP" = dp)
@@ -53,8 +53,8 @@ calculate.nb <- function(y, d, rH, formula, data, family, formula.ind){
 add.ci.columns <- function(x){
   n.out = nrow(x)
 
-  x$FPF_lower <- NA; x$FPF_upper <- NA
-  x$TPF_lower <-NA; x$TPF_upper <- NA
+  x$FPR_lower <- NA; x$FPR_upper <- NA
+  x$TPR_lower <-NA; x$TPR_upper <- NA
   x$NB_lower <-NA; x$NB_upper <- NA
   x$sNB_lower <-NA; x$sNB_upper <- NA
   x$rho_lower <- NA; x$rho_upper <- NA

@@ -1,0 +1,280 @@
+---
+title: "Simulated GenProbe Data"
+author: "Marshall Brown"
+date: "October 26, 2015"
+output: pdf_document
+---
+
+## Simulating data with known correlation structure. 
+
+I use the method described here:
+
+[http://www.r-bloggers.com/easily-generate-correlated-variables-from-any-distribution-without-copulas/](http://www.r-bloggers.com/easily-generate-correlated-variables-from-any-distribution-without-copulas/)
+
+Assuming that the (scaled) continuous variables are approximately normal, we: 
+
+1. Draw variables from a joint normal distribution using the observed mean/covariance matrix estimated from the GenProbe data. 
+ - Simulated Age, log(PSA), and log(PCA3) values are directly simulated from this multivariate normal distribution. 
+
+2. Apply the univariate normal CDF of variables to derive probabilities for binary variables 'suspicious DRE' and 'history of biopsy.' 
+
+3. Apply the inverse binomial CDF with $p=\hat{p}$ estimated from the raw data to simulate binary variables.
+ - This transformation reduces the amount of correlation among variables, but for this example the simulated variables follow pretty close to the observed correlation structure (see below).
+ 
+Nex I show the correlation and marginal distributions in the raw vs. simulated data.
+
+\clearpage 
+
+```{r echo = FALSE, message=FALSE, warning  = FALSE, fig.height = 8, fig.width= 6.5}
+library(corrplot)
+library(MASS)
+library(ggplot2)
+library(reshape)
+
+dcaData <- read.csv(file = "../../../Desktop/GenProbe_PCA3_Dataset_2007.09.19.csv")
+#head(dcaData)
+
+
+
+#remove missing data and variables we don't want
+cc <- complete.cases(dcaData[,c("Age.At.Urine.Collect", "Hx.of.Bx", "Susp.DRE", "Cancer", "Serum.PSA", "PCA3.Score")])
+GenProbe <- dcaData[cc,c("Age.At.Urine.Collect", "Hx.of.Bx", "Susp.DRE", "Cancer", "Serum.PSA", "PCA3.Score")]
+
+#take logs of biomarkers
+GenProbe$Serum.PSA <- log(GenProbe$Serum.PSA)
+GenProbe$PCA3.Score <- log(GenProbe$PCA3.Score)
+
+
+
+
+#1. Draw any number of variables from a joint normal distribution.
+
+mu <- colMeans(GenProbe[,-4])
+Sigma <- cov(GenProbe[,-4])
+
+set.seed(321)
+rawvars <- as.data.frame(mvrnorm(n=nrow(GenProbe), mu=mu, Sigma=Sigma))
+
+newvars <- rawvars
+
+#2. Apply the univariate normal CDF of variables to derive probabilities for each variable.
+## we only have to do this for the non - normal variables
+pvars <- NULL
+pvars$Bx <- pnorm(rawvars$Hx.of.Bx,
+                mean = mean(GenProbe$Hx.of.Bx),
+                sd = sd(GenProbe$Hx.of.Bx))
+
+pvars$Susp.DRE <- pnorm(rawvars$Susp.DRE,
+                        mean = mean(GenProbe$Susp.DRE),
+                        sd = sd(GenProbe$Susp.DRE))
+
+#3. Finally apply the inverse CDF of any distribution to simulate draws from that distribution.
+# only have to do this for the non-normal vars.
+
+newvars$Hx.of.Bx <- qbinom(pvars$Bx, size = 1, prob = mean(GenProbe$Hx.of.Bx))
+newvars$Susp.DRE <- qbinom(pvars$Susp.DRE, size = 1, prob = mean(GenProbe$Susp.DRE))
+
+#round(cov(newvars), 3)
+#round(cov(GenProbe[,-4]), 3)
+
+#round(cov(newvars), 3) - round(cov(GenProbe[,-4]), 3)
+#round(cor(newvars), 3) - round(cor(GenProbe[,-4]), 3)
+
+#round(rbind(colMeans(newvars), colMeans(GenProbe[,-4])), 2)
+#round(rbind(apply(newvars, 2, sd), apply(GenProbe[,-4], 2, sd)), 2)
+
+
+
+names(newvars) <- c("Age", "Hx.of.Bx", "DRE", "PSA", "PCA3")
+names(GenProbe)<-  c("Age", "Hx.of.Bx", "DRE", "Cancer", "PSA", "PCA3")
+
+par(mfrow = c(2,1))
+corrplot(cor(newvars), method = "ellipse", addCoef.col = "black", title = "\nsimulated data")
+corrplot(cor(GenProbe[,-4]), method = "ellipse", addCoef.col = "black", title = "\nraw data")
+
+
+
+```
+
+
+```{r echo = FALSE, message=FALSE, warning  = FALSE,fig.height = 5, fig.width=6.5}
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+
+long.newvars  <- melt(newvars); long.newvars$type = "simulated"
+long.Genprobe <- melt(GenProbe[,-4]); long.Genprobe$type = "raw"
+
+ggdat <- rbind(long.Genprobe, long.newvars)
+
+
+
+a <- ggplot(subset(ggdat, is.element(variable, c("Age", "PSA", "PCA3"))), aes(value, fill = type)) +
+         facet_wrap(~variable, scales = "free") +
+         geom_density(alpha = .6) + theme_bw() + theme(text = element_text(size = 14))
+
+b <- ggplot(subset(ggdat, is.element(variable, c("Hx.of.Bx", "DRE"))), aes(factor(value), fill = type)) +
+  facet_wrap(~variable, scales = "free") + xlab("") + 
+  geom_bar(position = "dodge") + theme_bw() + theme(text = element_text(size = 14))
+
+multiplot(a,b)
+
+```
+
+
+
+## Simulating outcome 
+
+First I fit a logistic regression model using the raw data with age, DRE, history of biopsy, PSA and PCA3. I then simulate cancer outcome from a logistic model using the same coefficients from the model fit on the raw data.  
+
+```{r  echo = FALSE}
+expit <- function(xx) exp(xx)/ (1+exp(xx))
+
+obs.coef <- glm(Cancer ~ Age + Hx.of.Bx + DRE +
+                         PSA + PCA3, 
+                 data = GenProbe, family = binomial("logit"))$coef
+
+prob.X <- expit(as.matrix(cbind(1, newvars))%*%obs.coef)
+
+newvars$cancer <- rbinom(n = nrow(newvars), 
+                         size = 1, 
+                         prob = prob.X)
+
+new.coef <- glm(cancer ~ Age + Hx.of.Bx + DRE +
+                         PSA + PCA3, 
+                 data = newvars, family = binomial("logit"))$coef
+rbind(obs.coef, new.coef)
+
+write.csv(newvars, file = "../../../Desktop/GenProbe_simulated.csv")
+
+```
+
+\clearpage 
+
+### Create plots for manuscript 
+
+```{r echo = FALSE, results='hide', message = FALSE, warning = FALSE}
+library(DecisionCurve)
+dcaData <- read.csv(file = "../../../Desktop/GenProbe_simulated.csv")
+
+set.seed(123) #set the random seed so that the ci's are comparable
+
+#create a decision_curve object for a baseline model with
+## Age, history of biopsy, and suspcious DRE
+baseline.model <- decision_curve(cancer ~Age + Hx.of.Bx + DRE, #fitting a logistic model
+                                thresholds = seq(0, 1, by = .005),
+                                data = dcaData,
+                                bootstraps = 500)
+
+
+set.seed(123)
+
+#add log(PSA) and log(PCA3) to the model
+full.model <- decision_curve(cancer ~ Age + Hx.of.Bx + DRE +
+                               PSA + PCA3, #fitting a logistic model
+                                thresholds = seq(0, 1, by = .005),
+                                data = dcaData,
+                                bootstraps = 500)
+
+#print to png -- I have found that these look the best.
+png(file = "example_dc.png", width = 500, height = 450)
+
+#adjus this to make the labels on the plots larger/smaller
+par(cex = 1.2, mfrow = c(1,1))
+#plot the decision curves together
+plot_decision_curve( list(baseline.model, full.model),
+                     ylim = c(-.5, 1.2),
+                     col = c("magenta", "blue"),
+                     lty = c(2, 1),
+                     curve.names = c("clinical model", "clinical model\n + biomarkers"))
+dev.off()
+
+
+png(file = "example_roc_components.png", width = 500, height = 450)
+par(cex = 1.2)
+plot_roc_components(full.model,
+                    curve.names = "baseline model",
+                    xlim = c(0, 1),
+                    col = c("grey50", "red"),
+                    ylim = c(0, 1.1))
+dev.off()
+
+png(file = "example_clinical_impact.png", width = 500, height = 450)
+
+plot_clinical_impact(full.model,
+                     curve.names = "baseline model",
+                     col = c("grey50", "red"),
+                     population.size = 1000)
+
+dev.off()
+
+#par(cex = 1, cex.lab = 1)
+
+
+
+#subset(full.model$derived.data, thresholds == .2)
+```
+
+```{r echo = FALSE, message=FALSE, fig.height = 6 }
+par(mfrow = c(1,1), cex = 1.2, mar = c(5.1, 4.1, 4.1, 2.1))
+
+plot_decision_curve( list(baseline.model, full.model),
+                     ylim = c(-.5, 1.2),
+                     col = c("magenta", "blue"),
+                     lty = c(2, 1),
+                     curve.names = c("clinical model", "clinical model\n + biomarkers"))
+
+```
+
+
+```{r echo = FALSE, message=FALSE, fig.height = 6}
+
+plot_roc_components(full.model,
+                    curve.names = "baseline model",
+                    xlim = c(0, 1),
+                    col = c("grey50", "red"),
+                    ylim = c(0, 1.1))
+```
+
+```{r echo = FALSE, message=FALSE, fig.height = 6}
+
+plot_clinical_impact(full.model,
+                     curve.names = "baseline model",
+                     col = c("grey50", "red"),
+                     population.size = 1000)
+
+```
+

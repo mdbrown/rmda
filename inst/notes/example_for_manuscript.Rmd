@@ -1,0 +1,77 @@
+---
+title: 'DecisionCurve: example for the manuscript'
+author: "Marshall Brown"
+date: "September 24, 2015"
+output:
+  pdf_document: default
+  html_document:
+    theme: cerulean
+---
+
+## Install the package 
+
+You may navigate to the source package and use 
+
+```{r, eval = FALSE}
+install.packages("../DecisionCurve_0.2.tar.gz", repos = NULL, type = "source")
+```
+
+
+## Getting started 
+
+
+```{r}
+library(DecisionCurve)
+dcaData <- read.csv(file = "../../../Desktop/GenProbe_PCA3_Dataset_2007.09.19.csv")
+
+#head(dcaData)
+#table(dcaData$Cancer)
+#hist(dcaData$Age.At.Urine.Collect)
+#table(dcaData$Hx.of.Bx)
+#table(dcaData$Susp.DRE)
+#hist(log(dcaData$Serum.PSA))
+#hist(log(dcaData$PCA3.Score))
+
+
+#remove missing data 
+cc <- complete.cases(dcaData[,c("Age.At.Urine.Collect",
+                                "Hx.of.Bx", "Susp.DRE", 
+                                "Cancer", "Serum.PSA",
+                                "PCA3.Score")])
+dcaData <- dcaData[cc,]
+
+set.seed(123)
+#first use DecisionCurve with the default settings (set bootstraps = 25 here to reduce computation time). 
+baseline.model <- decision_curve(Cancer ~ Age.At.Urine.Collect + Hx.of.Bx + Susp.DRE, #fitting a logistic model
+                                thresholds = seq(0, 1, by = .005), 
+                                data = dcaData, 
+                                bootstraps = 500)
+
+
+set.seed(123)
+full.model <- decision_curve(Cancer ~ Age.At.Urine.Collect + Hx.of.Bx + Susp.DRE + log(Serum.PSA) + log(PCA3.Score), #fitting a logistic model
+                                thresholds = seq(0, 1, by = .005), 
+                                data = dcaData, 
+                                bootstraps = 500)
+
+
+#plot the curves together 
+plot_decision_curve( list(baseline.model, full.model), 
+                     ylim = c(-.5, 1.5),  
+                     col = c("magenta", "blue"),
+                     lty = c(2, 1), 
+                     curve.names = c("clinical model", "clinical model + \nbiomarkers")) 
+
+
+plot_roc_components(full.model, curve.names = "baseline model", 
+                    xlim = c(0, 1), col = c("grey50", "red"),
+                    ylim = c(0, 1.1))
+
+plot_clinical_impact(full.model, curve.names = "baseline model",col = c("grey50", "red"), population.size = 1000)
+
+
+```
+
+
+
+

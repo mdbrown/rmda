@@ -2,5 +2,7 @@
 
 S3method(summary,DecisionCurve)
 export(Add_CostBenefit_Axis)
-export(DecisionCurve)
-export(PlotDecisionCurve)
+export(decision_curve)
+export(plot_clinical_impact)
+export(plot_decision_curve)
+export(plot_roc_components)

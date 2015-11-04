@@ -17,7 +17,7 @@
 #'   \item call: matched function call.
 #' }
 #'
-#' @seealso \code{\link{summary.DecisionCurve}},  \code{\link{Add_CostBenefit_Axis}}
+#' @seealso \code{\link{summary.decision.curve}},  \code{\link{Add_CostBenefit_Axis}}
 #' @examples
 #'#helper function
 #' expit <- function(xx) exp(xx)/ (1+exp(xx))
@@ -35,18 +35,17 @@
 #'dcaData$FullModel <- with(dcaData, expit(-10.5 + 0.22*Age  - 0.01*Female + 0.91*Smokes + 2.03*Marker1 - 1.56*Marker2))
 #'
 #'#use DecisionCurve defaults (set bootstraps = 25 here to reduce computation time).
-#'DecisionCurve(dcaData,
+#'decision_curve(dcaData,
 #'             outcome = "Cancer", predictors = c("BasicModel", "FullModel"),
 #'              bootstraps = 25)
 #'
 #' @export
 
-DecisionCurve <- function(formula,
+decision_curve <- function(formula,
                           data,
                           family = binomial(link = "logit"),
                           fitted.risk = FALSE,
                           thresholds = seq(0, 1, by = .01),
-                          standardize = TRUE,
                           confidence.intervals = 0.95,
                           bootstraps = 500){
  call <- match.call()
@@ -70,21 +69,21 @@ DecisionCurve <- function(formula,
   #first we fit the model
 
   #extract the model name from formula
-  predictors <- c(Reduce(paste, deparse(formula[[3]])), "all", "none")
-  predictor.names <- c(Reduce(paste, deparse(formula)), "all", "none")
+  predictors <- c(Reduce(paste, deparse(formula[[3]])), "All", "None")
+  predictor.names <- c(Reduce(paste, deparse(formula)), "All", "None")
 
   #indicate whether we are fitting a model with a formula or not
   #the last two are FALSE since they correspond to 'all' and 'none'
   formula.ind <- c(ifelse(fitted.risk, FALSE, TRUE), FALSE, FALSE)
 
-  data[["all"]] <- 1
-  data[["none"]] <- 0
+  data[["All"]] <- 1
+  data[["None"]] <- 0
 
   n.preds <- length(predictors) #should always be three
 
   n.out <- length(predictors)*length(thresholds)
   dc.data <- data.frame("thresholds" = numeric(n.out),
-                    "FPF" = numeric(n.out),"TPF" = numeric(n.out),
+                    "FPR" = numeric(n.out),"TPR" = numeric(n.out),
                     "NB" = numeric(n.out), "sNB" = numeric(n.out),
                     "rho" = numeric(n.out),"prob.high.risk" = numeric(n.out),
                     "DP" = numeric(n.out),
@@ -117,6 +116,7 @@ DecisionCurve <- function(formula,
     if(is.numeric(confidence.intervals)){
       #calculate measures in each bootstrap
       boot.data <- apply(B.ind, 2, function(x){
+
       calculate.nb(d = outcome[x],
                    y = data[[predictors[[i]] ]][x],
                    rH = thresholds,
@@ -154,10 +154,9 @@ DecisionCurve <- function(formula,
 
   #return list of elements
   out <- list("derived.data"  = dc.data,
-              "standardized" = standardize,
               "confidence.intervals" = confidence.intervals,
               "call" = call)
-  class(out) = "DecisionCurve"
+  class(out) = "decision_curve"
   invisible(out)
 
 }
