@@ -4,11 +4,23 @@ Decision curves are a useful tool to evaluate the population impact of adopting 
 
 ## Installation
 
-Get the development version from github: 
+After downloading the package from here:
 
-```R
-# install.packages("devtools")
-devtools::install_github("mdbrown/DecisionCurve")
+[https://github.com/mdbrown/DecisionCurve/releases](https://github.com/mdbrown/DecisionCurve/releases)
+
+navigate to the source package and use 
+
+
+```{r, eval = FALSE}
+install.packages("../DecisionCurve_0.3.tar.gz", repos = NULL, type = "source")
+```
+
+or install the package directly from github. 
+ 
+```{r, eval = FALSE}
+## install.packages("devtools")
+library(devtools)
+install_github("mdbrown/DecisionCurve")
 ```
 
 click [here](http://rpubs.com/mdbrown/DecisionCurveTutorial) for a quick tutorial to get you started. 
