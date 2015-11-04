@@ -1,9 +1,9 @@
-#' Displays a useful description of a DecisionCurve object
+#' Displays a useful description of a decision_curve object
 #'
-#' @param object DecisionCurve object to summarise
+#' @param object decision_curve object to summarise
 #' @param ... other arguments ignored (for compatibility with generic)
 #' @param nround number of decimal places to round (default 3).
-#' @method summary DecisionCurve
+#' @method summary decision_curve
 #' @examples
 #'#helper function
 #' expit <- function(xx) exp(xx)/ (1+exp(xx))
@@ -31,11 +31,11 @@
 #'
 #' @export
 
-summary.DecisionCurve <- function(x, ..., measure = c("sNB", "NB", "TPF", "FPF"), nround = 3){
+summary.decision_curve <- function(x, ..., measure = c("sNB", "NB", "TPR", "FPR"), nround = 3){
 
   #get measure name for printing
   measure <- match.arg(measure)
-  measure.names.df <- data.frame(measure = c("sNB", "NB", "TPF", "FPF"), measure.names = c("Standardized Net Benefit",
+  measure.names.df <- data.frame(measure = c("sNB", "NB", "TPR", "FPR"), measure.names = c("Standardized Net Benefit",
                                                                                       "Net Benefit",
                                                                                       "Sensitivity",
                                                                                       "1-Specificity"))
@@ -46,25 +46,25 @@ summary.DecisionCurve <- function(x, ..., measure = c("sNB", "NB", "TPF", "FPF")
 
   xx.wide <- cast(x$derived.data, thresholds+cost.benefit.ratio~method, value = measure)
   #need to add prob.high risk from the formula and convert to percent
-  xx.wide$prob.high.risk <- subset(x$derived.data, !is.element(method, c("all", "none")))$prob.high.risk*100
+  xx.wide$prob.high.risk <- subset(x$derived.data, !is.element(method, c("All", "None")))$prob.high.risk*100
 
   #rearrange terms to make sure we have the right ordering
   formula.name <- unique(x$derived.data$method)
-  formula.name <- formula.name[!is.element(formula.name, c("none", "all"))]
+  formula.name <- formula.name[!is.element(formula.name, c("None", "All"))]
 
-  xx.wide <- xx.wide[, c("thresholds", "cost.benefit.ratio", "prob.high.risk", "all", formula.name, "none")]
+  xx.wide <- xx.wide[, c("thresholds", "cost.benefit.ratio", "prob.high.risk", "All", formula.name, "None")]
 
 
 
   if( conf.int){
 
     xx.lower <- cast(x$derived.data, thresholds+cost.benefit.ratio~method, value = paste(measure, "_lower",sep = ""))
-    xx.lower$prob.high.risk <- subset(x$derived.data, !is.element(method, c("all", "none")))$prob.high.risk_lower*100
-    xx.lower <- xx.lower[, c("thresholds", "cost.benefit.ratio", "prob.high.risk", "all", formula.name, "none")]
+    xx.lower$prob.high.risk <- subset(x$derived.data, !is.element(method, c("All", "None")))$prob.high.risk_lower*100
+    xx.lower <- xx.lower[, c("thresholds", "cost.benefit.ratio", "prob.high.risk", "All", formula.name, "None")]
 
     xx.upper <- cast(x$derived.data, thresholds+cost.benefit.ratio~method, value = paste(measure, "_upper",sep = ""))
-    xx.upper$prob.high.risk <- subset(x$derived.data, !is.element(method, c("all", "none")))$prob.high.risk_upper*100
-    xx.upper <- xx.upper[, c("thresholds", "cost.benefit.ratio", "prob.high.risk", "all", formula.name, "none")]
+    xx.upper$prob.high.risk <- subset(x$derived.data, !is.element(method, c("All", "None")))$prob.high.risk_upper*100
+    xx.upper <- xx.upper[, c("thresholds", "cost.benefit.ratio", "prob.high.risk", "All", formula.name, "None")]
 
   }else{
     xx.lower <- NULL
@@ -82,7 +82,7 @@ summary.DecisionCurve <- function(x, ..., measure = c("sNB", "NB", "TPF", "FPF")
   if(conf.int){
     cat(paste0("\n", measure.name, " (", round(100*x$confidence.intervals),  "% Confidence Intervals):"))
 
-    not.preds <- match(c("risk\nthreshold", "cost:benefit\n ratio",  "none"),
+    not.preds <- match(c("risk\nthreshold", "cost:benefit\n ratio",  "None"),
                        names(out))
     n.preds <- ncol(out) - length(not.preds)
     for( i in 1:n.preds){

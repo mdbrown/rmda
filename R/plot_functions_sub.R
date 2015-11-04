@@ -1,20 +1,20 @@
 
 
 preparePlotData   <- function(x, curve.names, confidence.intervals){
-
+#  if(missing(curve.names)) curve.nams <- NA
   #extract data from x,
   #there is only one DecisionCurve to plot
   if(class(x) == "decision_curve"){
 
     dc.data <- x$derived.data
 
-    if(is.na(confidence.intervals)){
+    if(is.na(confidence.intervals[1])){
       confidence.intervals <- x$confidence.intervals
     }else{
       confidence.intervals <- ifelse(confidence.intervals, 1, "none")
     }
 
-    if(is.na(curve.names)[1]){
+    if(is.na(curve.names[1])){
       predictors <- unique(dc.data$method)
       predictors <- predictors[!is.element(predictors, c("None", "All"))]
     }else{
@@ -24,7 +24,7 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
 
   }else if(class(x)=="list"){
 
-    if(is.na(confidence.intervals)){
+    if(is.na(confidence.intervals[1])){
       confidence.intervals <- x[[1]]$confidence.intervals
     }else{
       confidence.intervals <- ifelse(confidence.intervals, 1, "none")
@@ -49,7 +49,7 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
       newdata <-  subset(ll$derived.data, !is.element(method, c("All", "None")))
       #predictor name
 
-      if(is.na(curve.names)){
+      if(is.na(curve.names[1])){
         #check to make sure the name is different
         newpred <- unique(newdata$method)
         if(is.element(newpred, predictors)) stop("After extracting the curve names from the decision_curve object, the names of the decision curves provided are the same for two or more decision_curve objects. Please set curve.names to avoid errors in plotting.")

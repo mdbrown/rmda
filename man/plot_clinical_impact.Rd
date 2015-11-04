@@ -4,13 +4,12 @@
 \alias{plot_clinical_impact}
 \title{Plot the clinical impact curve from a DecisionCurve object or many DecisionCurve objects}
 \usage{
-plot_clinical_impact(x, curve.names, population.size = 1000,
-  cost.benefit.axis = TRUE, n.cost.benefits = 6, cost.benefits,
-  standardize = TRUE, confidence.intervals, col = "black", lwd = 2, xlim,
-  ylim, xlab = "Risk Threshold", ylab,
-  cost.benefit.xlab = "Cost:Benefit Ratio", legend.position = c("topright",
-  "right", "bottomright", "bottom", "bottomleft", "left", "topleft", "top",
-  "none"), ...)
+plot_clinical_impact(x, population.size = 1000, cost.benefit.axis = TRUE,
+  n.cost.benefits = 6, cost.benefits, standardize = TRUE,
+  confidence.intervals, col = "black", lwd = 2, xlim, ylim,
+  xlab = "Risk Threshold", ylab, cost.benefit.xlab = "Cost:Benefit Ratio",
+  legend.position = c("topright", "right", "bottomright", "bottom",
+  "bottomleft", "left", "topleft", "top", "none"), ...)
 }
 \arguments{
 \item{x}{DecisionCurve object to plot or a list of DecisionCurve objects. Assumes output from function 'DecisionCurve'}

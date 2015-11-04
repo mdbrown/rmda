@@ -1,7 +1,7 @@
 ---
-title: "DecisionCurve Tutorial (v.0.2)"
+title: "DecisionCurve Tutorial (v.0.3)"
 author: "Marshall Brown"
-date: "September 24, 2015"
+date: "November 4, 2015"
 output: 
   html_document: 
     theme: cerulean
@@ -9,11 +9,15 @@ output:
 
 ## Install the package 
 
-You may navigate to the source package and use 
+After downloading the package here:
+
+[https://github.com/mdbrown/DecisionCurve/releases](https://github.com/mdbrown/DecisionCurve/releases)
+
+navigate to the source package and use 
 
 
 ```{r, eval = FALSE}
-install.packages("../DecisionCurve_0.2.tar.gz", repos = NULL, type = "source")
+install.packages("../DecisionCurve_0.3.tar.gz", repos = NULL, type = "source")
 ```
 
  or install the package directly from github. 
@@ -26,9 +30,9 @@ install_github("mdbrown/DecisionCurve")
 
 ## Getting started 
 
-Load the package and the provided simulated data set.  First we use the function `DecisionCurve` to create a decision curve object for a logistic model to predict cancer status using age, gender and smoking status. We then plot it using `PlotDecisionCurve`. 
+Load the package and the provided simulated data set.  First we use the function `decision_curve` to create a decision curve object for a logistic model to predict cancer status using age, gender and smoking status. We then plot it using `plot_decision_curve`. 
 
-```{r}
+```{r, message=FALSE}
 library(DecisionCurve, quietly = TRUE)
 
 #load simulated data 
@@ -37,24 +41,18 @@ data(dcaData)
 head(dcaData)
 
 set.seed(123)
-#first use DecisionCurve with the default settings (set bootstraps = 25 here to reduce computation time). 
+#first use DecisionCurve with the default settings (set bootstraps = 50 here to reduce computation time). 
 baseline.model <- decision_curve(Cancer~Age + Female + Smokes, #fitting a logistic model
                                 data = dcaData, 
-                                bootstraps = 25)
+                                bootstraps = 50)
 
 #plot the curve
 plot_decision_curve(baseline.model,  curve.names = "baseline model")
-
-plot_roc_components(baseline.model, curve.names = "baseline model", xlim = c(0, .4), 
-                    col = "black")
-
-plot_clinical_impact(baseline.model, curve.names = "baseline model")
-
 ```
 
-Next, we create a decision curve with two markers added to the original baseline model. We then pass a list with both decision curves to `PlotDecisionCurve' to plot both curves. 
+Next, we create a decision curve with two markers added to the original baseline model. We then pass a list with both decision curves to `plot_decision_curve' to plot both curves. 
 
-```{r}
+```{r, message=FALSE}
 set.seed(123)
 full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
               data = dcaData, 
@@ -65,14 +63,34 @@ plot_decision_curve( list(baseline.model, full.model),
                    curve.names = c("Baseline model", "Full model")) 
 
 #see all available options using 
-?DecisionCurve
-?PlotDecisionCurve
+?decision_curve
+?plot_decision_curve
+```
+
+## Other plot functions 
+
+We include two other functions `plot_roc_components` and `plot_clinical_impact`.
+
+`plot_roc_components` plots the components of the ROC curve-true positive rate and false positive rates-over a range of high risk thresholds. 
+
+If we were to use the specified model to classify 1,000 hypothetical subjects, `plot_clinical_impact` plots the number classified as high risk and the number with the outcome classified as high risk for a given high risk threshold. 
+
+```{r, message=FALSE}
+#plot the components of the roc curve--true positive rate and false positive rate
+plot_roc_components(full.model,  xlim = c(0, 0.4), 
+                    col = c("black", "red"))
+#plot the clinical impact 
+plot_clinical_impact(full.model, xlim = c(0, .4), 
+                     col = c("black", "blue"))
 ```
 
 ## Tweaking the defaults 
 
-Fine tune the thresholds, move the legend, and change linewidth and colors. Here we are calculating many more points on the curve (see the 'thresholds' setting).
-```{r}
+We show several examples of how one might change the default settings. 
+
+ - Fine tune the thresholds, move the legend, and change linewidth and colors. Here we are calculating many more points on the curve (see the 'thresholds' setting).
+
+```{r, message=FALSE}
 
 baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
                                 data = dcaData, 
@@ -94,9 +112,9 @@ plot_decision_curve( list(baseline.model, full.model),
 
 ```
 
-No confidence intervals, cost:benefit ratio axis, or legend
+ - No confidence intervals, cost:benefit ratio axis, or legend
 
-```{r}
+```{r, message=FALSE}
 plot_decision_curve( list(baseline.model, full.model), 
                    curve.names = c("Baseline model", "Full model"),
                    col = c("blue", "red"), 
@@ -106,9 +124,9 @@ plot_decision_curve( list(baseline.model, full.model),
 
 ```
 
- Set specific cost:benefit ratios. 
+ - Set specific cost:benefit ratios. 
 
-```{r}
+```{r, message=FALSE}
 plot_decision_curve( list(baseline.model, full.model), 
                    curve.names = c("Baseline model", "Full model"),
                    col = c("blue", "red"), 
@@ -117,9 +135,9 @@ plot_decision_curve( list(baseline.model, full.model),
 
 ```
 
-Plot net benefit instead of standardize net benefit, change confidence interval level.
+ - Plot net benefit instead of standardize net benefit, change confidence interval level.
 
-```{r}
+```{r, message=FALSE}
 
 baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
                                 data = dcaData, 
@@ -144,16 +162,12 @@ plot_decision_curve( list(baseline.model, full.model),
 ```
 
 
-# Providing fitted risk estimates 
-
-If a risk model has already been specified, and so no model fitting is needed, the user can specify `fitted.risks=TRUE` and provide them in the formula. No model fitting will be done and bootstrap confidence intervals will be. 
-
-
 # Providing fitted risks
 
+If a risk model has already been specified, and so no model fitting is needed, the user can specify `fitted.risks=TRUE` and provide them in the formula. No model fitting will be done and bootstrap confidence intervals will be conditional on the fitted model. 
 
 
-```{r}
+```{r, message=FALSE}
 
 #helper function
 
@@ -186,8 +200,8 @@ plot_decision_curve(full.model, legend.position = "none")
 
 DecisionCurve also outputs all calculations and point estimates when assigned to an object. 
 
-```{r}
-full.model <- DecisionCurve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+```{r, message=FALSE}
+full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
                             data = dcaData, 
                             thresholds = seq(0, .4, by = .05),
                             bootstraps = 25) 
@@ -195,28 +209,28 @@ full.model <- DecisionCurve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
 
 The best way to look at point estimates (w/ci's) is to use `summary`. 
 
-```{r}
+```{r, message=FALSE}
 summary(full.model) #outputs standardized net benefit by default
 ```
 
 you can also choose which measure to report, and how many decimal places to print. 
 
-```{r}
-summary(full.model, nround = 2, measure = "TPF") #outputs standardized net benefit by default
+```{r, message=FALSE}
+summary(full.model, nround = 2, measure = "TPR") #outputs standardized net benefit by default
 ```
-
 
 
 You can also access the data directly. `my.dc$derived.data` holds the net benefit and it's components. 
 
-```{r}
+```{r, message=FALSE}
 head(full.model$derived.data)
 ```
 
 
 
-# Cross-validation 
+# Cross-validation (to do!)
 
+# Case-Control data (to do!)
 
 
 

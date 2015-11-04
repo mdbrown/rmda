@@ -179,11 +179,11 @@ plot_roc_components <- function(x,
 
   legend.position <- match.arg(legend.position)
 
-  if(missing(curve.names)) curve.names  <- NA
+ # if(missing(curve.names)) curve.names  <- NA
   if(missing(confidence.intervals)) confidence.intervals <- NA
 
   prepData <- preparePlotData(x = x,
-                              curve.names = curve.names,
+                              curve.names = NA,
                               confidence.intervals = confidence.intervals)
 
   predictors <- prepData$predictors
@@ -311,11 +311,11 @@ plot_clinical_impact <- function(x,
 
   legend.position <- match.arg(legend.position)
 
-  if(missing(curve.names)) curve.names  <- NA
+  #if(missing(curve.names)) curve.names  <- NA
   if(missing(confidence.intervals)) confidence.intervals <- NA
 
   prepData <- preparePlotData(x = x,
-                              curve.names = curve.names,
+                              curve.names = NA,
                               confidence.intervals = confidence.intervals)
 
   predictors <- prepData$predictors

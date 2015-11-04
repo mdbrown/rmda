@@ -6,7 +6,7 @@
 \usage{
 decision_curve(formula, data, family = binomial(link = "logit"),
   fitted.risk = FALSE, thresholds = seq(0, 1, by = 0.01),
-  standardize = TRUE, confidence.intervals = 0.95, bootstraps = 500)
+  confidence.intervals = 0.95, bootstraps = 500)
 }
 \arguments{
 \item{formula}{an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm.}

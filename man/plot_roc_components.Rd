@@ -4,12 +4,12 @@
 \alias{plot_roc_components}
 \title{Plot the sensitivity of a DecisionCurve object or many DecisionCurve objects}
 \usage{
-plot_roc_components(x, curve.names, cost.benefit.axis = TRUE,
-  n.cost.benefits = 6, cost.benefits, confidence.intervals, col = "black",
-  lty.fpr = 2, lty.tpr = 1, lwd = 2, xlim, ylim,
-  xlab = "Risk Threshold", ylab, cost.benefit.xlab = "Cost:Benefit Ratio",
-  legend.position = c("topright", "right", "bottomright", "bottom",
-  "bottomleft", "left", "topleft", "top", "none"), ...)
+plot_roc_components(x, cost.benefit.axis = TRUE, n.cost.benefits = 6,
+  cost.benefits, confidence.intervals, col = "black", lty.fpr = 2,
+  lty.tpr = 1, lwd = 2, xlim, ylim, xlab = "Risk Threshold", ylab,
+  cost.benefit.xlab = "Cost:Benefit Ratio", legend.position = c("topright",
+  "right", "bottomright", "bottom", "bottomleft", "left", "topleft", "top",
+  "none"), ...)
 }
 \arguments{
 \item{x}{DecisionCurve object to plot or a list of DecisionCurve objects. Assumes output from function 'DecisionCurve'}
