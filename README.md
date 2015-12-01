@@ -12,7 +12,7 @@ navigate to the source package and use
 
 
 ```{r, eval = FALSE}
-install.packages("../DecisionCurve_0.3.tar.gz", repos = NULL, type = "source")
+install.packages("../DecisionCurve_0.4.tar.gz", repos = NULL, type = "source")
 ```
 
 or install the package directly from github. 
