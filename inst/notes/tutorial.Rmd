@@ -230,6 +230,15 @@ head(full.model$derived.data)
 
 # Cross-validation (to do!)
 
+If you would like to 
+
+```{r, message=FALSE}
+head(full.model$derived.data)
+```
+
+
+
+
 # Case-Control data (to do!)
 
 

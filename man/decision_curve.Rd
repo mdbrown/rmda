@@ -15,7 +15,7 @@ decision_curve(formula, data, family = binomial(link = "logit"),
 
 \item{family}{a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.}
 
-\item{fitted.risk}{logical (default FALSE) indicating whether the predictor provided Risks must fall between 0 and 1.}
+\item{fitted.risk}{logical (default FALSE) indicating whether the predictor provided are estimated risks from an already established model. If set to TRUE, no model fitting will be done and all estimates will be conditional on the risks provided.  Risks must fall between 0 and 1.}
 
 \item{thresholds}{Numeric vector of high risk thresholds to use when plotting and calculating net benefit values.}
 
@@ -26,8 +26,8 @@ decision_curve(formula, data, family = binomial(link = "logit"),
 \value{
 List with components
 \itemize{
-  \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPF':false positive fraction, 'TPF': true positive fraction, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'predictor': name of predictor, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, NB and sNB.
-  \item standardized: Whether standardized net benefit or net benefit is returned.
+  \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'DP': detection probability, 'model': name of prediction model, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, DP, NB and sNB.
+  \item confidence.intervals: Level of confidence intervals returned.
   \item call: matched function call.
 }
 }
@@ -35,7 +35,7 @@ List with components
 Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probabilty threshold used to categorize observations as 'high risk.'  Bootstrap confidence intervals are displayed as well. This package is a companion to the manuscript '(put ref here.)'.
 }
 \details{
-Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. Bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples. Note that the confidence intervals calculated assume the risk prediction tool
+Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. Bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples.
 }
 \examples{
 #helper function
@@ -43,20 +43,15 @@ expit <- function(xx) exp(xx)/ (1+exp(xx))
 
 #load simulated data
 data(dcaData)
-# Assume we have access to previously published models
-# (or models built using a training set)
-# that we can use to predict the risk of cancer.
+baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
+                                data = dcaData,
+                                thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+                                bootstraps = 25) #number of bootstraps should be higher
 
-# Basic model using demographic variables: Age, Female, Smokes.
-dcaData$BasicModel <- with(dcaData, expit(-7.3 + 0.18*Age - 0.08*Female + 0.80*Smokes ) )
-
-# Model using demographic + markers : Age, Female, Smokes, Marker1 and Marker2.
-dcaData$FullModel <- with(dcaData, expit(-10.5 + 0.22*Age  - 0.01*Female + 0.91*Smokes + 2.03*Marker1 - 1.56*Marker2))
-
-#use DecisionCurve defaults (set bootstraps = 25 here to reduce computation time).
-decision_curve(dcaData,
-            outcome = "Cancer", predictors = c("BasicModel", "FullModel"),
-             bootstraps = 25)
+full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+                            data = dcaData,
+                            thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+                            bootstraps = 25)
 }
 \seealso{
 \code{\link{summary.decision.curve}},  \code{\link{Add_CostBenefit_Axis}}

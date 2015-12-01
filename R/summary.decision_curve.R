@@ -2,32 +2,23 @@
 #'
 #' @param object decision_curve object to summarise
 #' @param ... other arguments ignored (for compatibility with generic)
+#' @param measure name of summary measure to print out. For standardized net benefit: "sNB" (default), net benefit: "NB", true positive rate: "TPR", false positive rate: "FPR".
 #' @param nround number of decimal places to round (default 3).
 #' @method summary decision_curve
 #' @examples
 #'#helper function
-#' expit <- function(xx) exp(xx)/ (1+exp(xx))
 #'
 #'#load simulated data
 #'data(dcaData)
-#'# Assume we have access to previously published models
-#'# (or models built using a training set)
-#'# that we can use to predict the risk of cancer.
 #'
-#'# Basic model using demographic variables: Age, Female, Smokes.
-#'dcaData$BasicModel <- with(dcaData, expit(-7.3 + 0.18*Age - 0.08*Female + 0.80*Smokes ) )
+#'full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+#'data = dcaData,
+#'thresholds = seq(0, .4, by = .05),
+#'bootstraps = 25)
 #'
-#'# Model using demographic + markers : Age, Female, Smokes, Marker1 and Marker2.
-#'dcaData$FullModel <- with(dcaData, expit(-10.5 + 0.22*Age  - 0.01*Female + 0.91*Smokes + 2.03*Marker1 - 1.56*Marker2))
+#'summary(full.model) #outputs standardized net benefit by default
 #'
-#'#use DecisionCurve defaults (set bootstraps = 25 here to reduce computation time).
-#'my.dc <- DecisionCurve(dcaData,
-#'                       outcome = "Cancer", predictors = c("BasicModel", "FullModel"),
-#'                       bootstraps = 25,
-#'                       thresholds = seq(0, 0.4, by = .05))
-#'
-#'summary(my.dc)
-#'
+#'summary(full.model, nround = 2, measure = "TPR")
 #'
 #' @export
 
@@ -37,8 +28,8 @@ summary.decision_curve <- function(x, ..., measure = c("sNB", "NB", "TPR", "FPR"
   measure <- match.arg(measure)
   measure.names.df <- data.frame(measure = c("sNB", "NB", "TPR", "FPR"), measure.names = c("Standardized Net Benefit",
                                                                                       "Net Benefit",
-                                                                                      "Sensitivity",
-                                                                                      "1-Specificity"))
+                                                                                      "Sensitivity (TPR)",
+                                                                                      "1-Specificity (FPR)"))
   measure.name <- as.character(measure.names.df[match(measure, measure.names.df$measure), "measure.names"])
 
   #if this is true, confidence intervals have been calculated

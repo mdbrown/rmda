@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_functions_main.R
 \name{plot_roc_components}
 \alias{plot_roc_components}
-\title{Plot the sensitivity of a DecisionCurve object or many DecisionCurve objects}
+\title{Plot the components of a ROC curve by the high risk thresholds.}
 \usage{
 plot_roc_components(x, cost.benefit.axis = TRUE, n.cost.benefits = 6,
   cost.benefits, confidence.intervals, col = "black", lty.fpr = 2,
@@ -12,17 +12,19 @@ plot_roc_components(x, cost.benefit.axis = TRUE, n.cost.benefits = 6,
   "none"), ...)
 }
 \arguments{
-\item{x}{DecisionCurve object to plot or a list of DecisionCurve objects. Assumes output from function 'DecisionCurve'}
+\item{x}{decision_curve object to plot. Assumes output from function 'decision_curve'}
 
 \item{cost.benefit.axis}{logical (default TRUE) indicating whether to print an additional x-axis showing relative cost:benefit ratios in addition to risk thresholds.}
 
 \item{n.cost.benefits}{number of cost:benefit ratios to print if cost.benefit.axis = TRUE (default n.cost.benefit = 6).}
 
-\item{cost.benefits}{Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print.}
+\item{cost.benefits}{Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print. Default allows the function to calculate these automatically.}
 
-\item{col}{vector of color names to be used in plotting corresponding to the 'predictors' given. Default colors will be chosen from rainbow(..., v = .8). See details for more information on plot parameters.}
+\item{confidence.intervals}{logical indicating whether to plot confidence intervals.}
 
-\item{lwd}{vector of linewidths to plot corresponding to 'predictors'.}
+\item{col}{vector of length two indicating the color for the true positive rates and false positive rates, respectively.}
+
+\item{lwd}{vector of linewidths. The first element corresponds to the tpr and the second to the fpr.}
 
 \item{xlim}{vector giving c(min, max) of x-axis. Defaults to c(min(thresholds), max(thresholds)).}
 
@@ -34,41 +36,24 @@ plot_roc_components(x, cost.benefit.axis = TRUE, n.cost.benefits = 6,
 
 \item{cost.benefit.xlab}{label of cost:benefit ratio axis.}
 
-\item{...}{other arguments ignored (for compatibility with generic)}
-
-\item{nround}{number of decimal places to round (default 3).}
-
-\item{standardize}{logical (default TRUE) indicating whether to use the standardized net benefit (NB/disease prevalence) or not.}
-
-\item{lty}{vector of linetypes to plot corresponding to 'predictors'.}
+\item{legend.position}{character vector giving position of legend. Options are "topright" (default), "right", "bottomright", "bottom", "bottomleft", "left", "topleft", "top", or "none".}
 
 \item{...}{other options directly send to plot()}
+
+\item{lty}{vector of linetypes. The first element corresponds to the tpr and the second to the fpr.}
 }
 \description{
-Plot the sensitivity of a DecisionCurve object or many DecisionCurve objects
+Plot the components of the ROC curve --the true positive rates and false positive rates-- by high risk thresholds.
 }
 \examples{
-#helper function
-expit <- function(xx) exp(xx)/ (1+exp(xx))
-
-#load simulated data
 data(dcaData)
-# Assume we have access to previously published models
-# (or models built using a training set)
-# that we can use to predict the risk of cancer.
+set.seed(123)
+baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
+                                data = dcaData,
+                                thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+                                bootstraps = 25) #should use more bootstrap replicates in practice!
 
-# Basic model using demographic variables: Age, Female, Smokes.
-dcaData$BasicModel <- with(dcaData, expit(-7.3 + 0.18*Age - 0.08*Female + 0.80*Smokes ) )
-
-# Model using demographic + markers : Age, Female, Smokes, Marker1 and Marker2.
-dcaData$FullModel <- with(dcaData, expit(-10.5 + 0.22*Age  - 0.01*Female + 0.91*Smokes + 2.03*Marker1 - 1.56*Marker2))
-
-#use DecisionCurve defaults (set bootstraps = 25 here to reduce computation time).
-my.dc <- DecisionCurve(dcaData,
-                      outcome = "Cancer", predictors = c("BasicModel", "FullModel"),
-                      bootstraps = 25,
-                      thresholds = seq(0, 0.4, by = .05))
-
-summary(my.dc)
+#plot using the defaults
+plot_roc_components(baseline.model,  xlim = c(0, 0.4), col = c("black", "red"))
 }
 

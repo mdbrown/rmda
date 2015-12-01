@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_functions_main.R
 \name{plot_clinical_impact}
 \alias{plot_clinical_impact}
-\title{Plot the clinical impact curve from a DecisionCurve object or many DecisionCurve objects}
+\title{Plot the clinical impact curve from a DecisionCurve object.}
 \usage{
 plot_clinical_impact(x, population.size = 1000, cost.benefit.axis = TRUE,
   n.cost.benefits = 6, cost.benefits, standardize = TRUE,
@@ -12,19 +12,21 @@ plot_clinical_impact(x, population.size = 1000, cost.benefit.axis = TRUE,
   "bottomleft", "left", "topleft", "top", "none"), ...)
 }
 \arguments{
-\item{x}{DecisionCurve object to plot or a list of DecisionCurve objects. Assumes output from function 'DecisionCurve'}
+\item{x}{decision_curve object to plot. Assumes output from function 'decision_curve'}
+
+\item{population.size}{Hypothetical population size (default 1000).}
 
 \item{cost.benefit.axis}{logical (default TRUE) indicating whether to print an additional x-axis showing relative cost:benefit ratios in addition to risk thresholds.}
 
 \item{n.cost.benefits}{number of cost:benefit ratios to print if cost.benefit.axis = TRUE (default n.cost.benefit = 6).}
 
-\item{cost.benefits}{Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print.}
+\item{cost.benefits}{Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print. Default allows the function to calculate these automatically.}
 
-\item{standardize}{logical (default TRUE) indicating whether to use the standardized net benefit (NB/disease prevalence) or not.}
+\item{confidence.intervals}{logical indicating whether to plot confidence intervals.}
 
-\item{col}{vector of color names to be used in plotting corresponding to the 'predictors' given. Default colors will be chosen from rainbow(..., v = .8). See details for more information on plot parameters.}
+\item{col}{vector of length two indicating the color for the number high risk and the second to the number high risk with outcome, respectively.}
 
-\item{lwd}{vector of linewidths to plot corresponding to 'predictors'.}
+\item{lwd}{vector of linewidths. The first element corresponds to the number high risk and the second to the number high risk with outcome.}
 
 \item{xlim}{vector giving c(min, max) of x-axis. Defaults to c(min(thresholds), max(thresholds)).}
 
@@ -36,39 +38,25 @@ plot_clinical_impact(x, population.size = 1000, cost.benefit.axis = TRUE,
 
 \item{cost.benefit.xlab}{label of cost:benefit ratio axis.}
 
-\item{...}{other arguments ignored (for compatibility with generic)}
-
-\item{nround}{number of decimal places to round (default 3).}
-
-\item{lty}{vector of linetypes to plot corresponding to 'predictors'.}
+\item{legend.position}{character vector giving position of legend. Options are "topright" (default), "right", "bottomright", "bottom", "bottomleft", "left", "topleft", "top", or "none".}
 
 \item{...}{other options directly send to plot()}
+
+\item{lty}{vector of linetypes. The first element corresponds to the number high risk and the second to the number high risk with outcome.}
 }
 \description{
-Plot the clinical impact curve from a DecisionCurve object or many DecisionCurve objects
+For a given population size, plot the number of subjects classified as high risk, and the number of subjects classified high risk with the outcome of interest at each high risk threshold.
 }
 \examples{
-#helper function
-expit <- function(xx) exp(xx)/ (1+exp(xx))
+#'data(dcaData)
+set.seed(123)
+baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
+                                data = dcaData,
+                                thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+                                bootstraps = 25) #should use more bootstrap replicates in practice!
 
-#load simulated data
-data(dcaData)
-# Assume we have access to previously published models
-# (or models built using a training set)
-# that we can use to predict the risk of cancer.
-
-# Basic model using demographic variables: Age, Female, Smokes.
-dcaData$BasicModel <- with(dcaData, expit(-7.3 + 0.18*Age - 0.08*Female + 0.80*Smokes ) )
-
-# Model using demographic + markers : Age, Female, Smokes, Marker1 and Marker2.
-dcaData$FullModel <- with(dcaData, expit(-10.5 + 0.22*Age  - 0.01*Female + 0.91*Smokes + 2.03*Marker1 - 1.56*Marker2))
-
-#use DecisionCurve defaults (set bootstraps = 25 here to reduce computation time).
-my.dc <- DecisionCurve(dcaData,
-                      outcome = "Cancer", predictors = c("BasicModel", "FullModel"),
-                      bootstraps = 25,
-                      thresholds = seq(0, 0.4, by = .05))
-
-summary(my.dc)
+#plot the clinical impact
+plot_clinical_impact(full.model, xlim = c(0, .4),
+                    col = c("black", "blue"))
 }
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_functions_main.R
 \name{plot_decision_curve}
 \alias{plot_decision_curve}
-\title{Plot a decision.curve object or many decision.curve objects}
+\title{Plot the net benefit curves from a decision_curve object or many decision_curve objects}
 \usage{
 plot_decision_curve(x, curve.names, cost.benefit.axis = TRUE,
   n.cost.benefits = 6, cost.benefits, standardize = TRUE,
@@ -12,21 +12,25 @@ plot_decision_curve(x, curve.names, cost.benefit.axis = TRUE,
   "bottomleft", "left", "topleft", "top", "none"), ...)
 }
 \arguments{
-\item{x}{DecisionCurve object to plot or a list of DecisionCurve objects. Assumes output from function 'DecisionCurve'}
+\item{x}{'decision_curve' object to plot or a list of 'decision_curve' objects. Assumes output from function 'decision_curve'}
+
+\item{curve.names}{vector of names to use when plotting legends.}
 
 \item{cost.benefit.axis}{logical (default TRUE) indicating whether to print an additional x-axis showing relative cost:benefit ratios in addition to risk thresholds.}
 
 \item{n.cost.benefits}{number of cost:benefit ratios to print if cost.benefit.axis = TRUE (default n.cost.benefit = 6).}
 
-\item{cost.benefits}{Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print.}
+\item{cost.benefits}{Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print. Default allows the function to calculate these automatically.}
 
 \item{standardize}{logical (default TRUE) indicating whether to use the standardized net benefit (NB/disease prevalence) or not.}
 
+\item{confidence.intervals}{logical indicating whether to plot confidence intervals.}
+
 \item{col}{vector of color names to be used in plotting corresponding to the 'predictors' given. Default colors will be chosen from rainbow(..., v = .8). See details for more information on plot parameters.}
 
-\item{lty}{vector of linetypes to plot corresponding to 'predictors'.}
+\item{lty}{vector of linetypes.}
 
-\item{lwd}{vector of linewidths to plot corresponding to 'predictors'.}
+\item{lwd}{vector of linewidths.}
 
 \item{xlim}{vector giving c(min, max) of x-axis. Defaults to c(min(thresholds), max(thresholds)).}
 
@@ -38,37 +42,65 @@ plot_decision_curve(x, curve.names, cost.benefit.axis = TRUE,
 
 \item{cost.benefit.xlab}{label of cost:benefit ratio axis.}
 
-\item{...}{other arguments ignored (for compatibility with generic)}
-
-\item{nround}{number of decimal places to round (default 3).}
+\item{legend.position}{character vector giving position of legend. Options are "topright" (default), "right", "bottomright", "bottom", "bottomleft", "left", "topleft", "top", or "none".}
 
 \item{...}{other options directly send to plot()}
 }
 \description{
-Plot a decision.curve object or many decision.curve objects
+Plot the net benefit curves from a decision_curve object or many decision_curve objects
+}
+\details{
+When k decision_curve objects are input, the first k elements of col, lty, lwd ... correspond to the curves provided. The next two elements (..., k+1, k+2) correspond to the attributes of the 'all' and 'none' curves. See below for an example.
 }
 \examples{
-#helper function
-expit <- function(xx) exp(xx)/ (1+exp(xx))
-
-#load simulated data
 data(dcaData)
-# Assume we have access to previously published models
-# (or models built using a training set)
-# that we can use to predict the risk of cancer.
+set.seed(123)
+baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
+                                data = dcaData,
+                                thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+                                bootstraps = 25)
 
-# Basic model using demographic variables: Age, Female, Smokes.
-dcaData$BasicModel <- with(dcaData, expit(-7.3 + 0.18*Age - 0.08*Female + 0.80*Smokes ) )
+#plot using the defaults
+plot_decision_curve(baseline.model,  curve.names = "baseline model")
 
-# Model using demographic + markers : Age, Female, Smokes, Marker1 and Marker2.
-dcaData$FullModel <- with(dcaData, expit(-10.5 + 0.22*Age  - 0.01*Female + 0.91*Smokes + 2.03*Marker1 - 1.56*Marker2))
+set.seed(123)
+full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+                            data = dcaData,
+                            thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+                            bootstraps = 25)
 
-#use DecisionCurve defaults (set bootstraps = 25 here to reduce computation time).
-my.dc <- DecisionCurve(dcaData,
-                      outcome = "Cancer", predictors = c("BasicModel", "FullModel"),
-                      bootstraps = 25,
-                      thresholds = seq(0, 0.4, by = .05))
 
-summary(my.dc)
+plot_decision_curve( list(baseline.model, full.model),
+                    curve.names = c("Baseline model", "Full model"),
+                    col = c("blue", "red"),
+                    lty = c(1,2),
+                    lwd = c(3,2, 2, 1),  # the first two positions correspond to the decision curves, then 'all' and 'none'
+                    legend.position = "bottomright") #adjust the legend position
+
+
+plot_decision_curve( list(baseline.model, full.model),
+                    curve.names = c("Baseline model", "Full model"),
+                    col = c("blue", "red"),
+                    confidence.intervals = FALSE,  #remove confidence intervals
+                    cost.benefit.axis = FALSE, #remove cost benefit axis
+                    legend.position = "none") #remove the legend
+
+#Set specific cost:benefit ratios.
+
+plot_decision_curve( list(baseline.model, full.model),
+                    curve.names = c("Baseline model", "Full model"),
+                    col = c("blue", "red"),
+                    cost.benefits = c("1:1000", "1:4", "1:9", "2:3", "1:3"),  #set specific cost benefits
+                    legend.position = "bottomright")
+
+#Plot net benefit instead of standardize net benefit.
+
+plot_decision_curve( list(baseline.model, full.model),
+                    curve.names = c("Baseline model", "Full model"),
+                    col = c("blue", "red"),
+                    ylim = c(-0.05, 0.15), #set ylim
+                    lty = c(2,1),
+                    standardize = FALSE, #plot Net benefit instead of standardized net benefit
+                   legend.position = "topright")
 }
 

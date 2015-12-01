@@ -15,10 +15,10 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
     }
 
     if(is.na(curve.names[1])){
-      predictors <- unique(dc.data$method)
+      predictors <- unique(dc.data$model)
       predictors <- predictors[!is.element(predictors, c("None", "All"))]
     }else{
-      dc.data$method[!is.element(dc.data$method, c("None", "All"))] <- curve.names[1]
+      dc.data$model[!is.element(dc.data$model, c("None", "All"))] <- curve.names[1]
       predictors <- curve.names[1]
     }
 
@@ -34,7 +34,7 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
 
     #multiple dc's to plot
     #pull the "all' and 'none' curves from the first element in x
-    dc.data <- subset(x[[1]]$derived.data, is.element(method, c("All", "None")))
+    dc.data <- subset(x[[1]]$derived.data, is.element(model, c("All", "None")))
 
     #fill in ci variables for if confidence intervals weren't calculated using DecisionCurve
     if(ncol(dc.data) == 9 ) dc.data <- add.ci.columns(dc.data)
@@ -46,16 +46,16 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
     for(ll in x){
       i = i + 1
       #extract data to add
-      newdata <-  subset(ll$derived.data, !is.element(method, c("All", "None")))
+      newdata <-  subset(ll$derived.data, !is.element(model, c("All", "None")))
       #predictor name
 
       if(is.na(curve.names[1])){
         #check to make sure the name is different
-        newpred <- unique(newdata$method)
+        newpred <- unique(newdata$model)
         if(is.element(newpred, predictors)) stop("After extracting the curve names from the decision_curve object, the names of the decision curves provided are the same for two or more decision_curve objects. Please set curve.names to avoid errors in plotting.")
       }else{
-        newdata$method <- curve.names[i]
-        newpred <- unique(newdata$method)
+        newdata$model <- curve.names[i]
+        newpred <- unique(newdata$model)
       }
 
       predictors <- c(predictors, newpred)
@@ -103,7 +103,7 @@ plot_generic<- function(xx, predictors, value, plotNew,
   old.par<- par("mar"); on.exit(par(mar = old.par))
 
 
-  xx.wide <- cast(xx, thresholds~method, value =  value, add.missing = TRUE, fill = NA)
+  xx.wide <- cast(xx, thresholds~model, value =  value, add.missing = TRUE, fill = NA)
   xx.wide$thresholds <- as.numeric(as.character(xx.wide$thresholds))
 
   if(is.numeric(confidence.intervals)){
@@ -111,8 +111,8 @@ plot_generic<- function(xx, predictors, value, plotNew,
     val_lower <- paste(value, "lower", sep = "_")
     val_upper <- paste(value, "upper", sep = "_")
 
-    xx.lower <- cast(xx, thresholds~method, value = val_lower, add.missing = TRUE, fill = NA)
-    xx.upper <- cast(xx, thresholds~method, value = val_upper, add.missing = TRUE, fill = NA)
+    xx.lower <- cast(xx, thresholds~model, value = val_lower, add.missing = TRUE, fill = NA)
+    xx.upper <- cast(xx, thresholds~model, value = val_upper, add.missing = TRUE, fill = NA)
     xx.lower$thresholds <- as.numeric(as.character(xx.lower$thresholds))
     xx.upper$thresholds <- as.numeric(as.character(xx.upper$thresholds))
   }

@@ -1,68 +1,42 @@
-#' Calculate decision curves
+#' Calculate cross-validated decision curves
 #'
-#'Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probabilty threshold used to categorize observations as 'high risk.'  Bootstrap confidence intervals are displayed as well. This package is a companion to the manuscript '(put ref here.)'.
+#' This is a wrapper for 'decision_curve' that computes cross-validated estimates of sensitivity, specificity, and net benefit so that cross-validated net benefit curves can be plotted.
 #'
 #' @param formula an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm.
 #' @param data data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.
 #' @param family a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.
-#' @param fitted.risk logical (default FALSE) indicating whether the predictor provided are estimated risks from an already established model. If set to TRUE, no model fitting will be done and all estimates will be conditional on the risks provided.  Risks must fall between 0 and 1.
 #' @param thresholds Numeric vector of high risk thresholds to use when plotting and calculating net benefit values.
-#' @param confidence.intervals Numeric (default 0.95 for 95\% confidence bands) level of bootstrap confidence intervals to plot. Set as NA or 'none' to remove confidence intervals. See details for more information.
-#' @param bootstraps Number of bootstrap replicates to use to calculate confidence intervals (default 500).
-#' @details  Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. Bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples.
+#' @param confidence.intervals not functional
+#' @param folds Number of bootstrap replicates to use to calculate confidence intervals (default 500).
+#' @details  Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. Bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples. Note that the confidence intervals calculated assume the risk prediction tool
 #' @return List with components
 #' \itemize{
-#'   \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'DP': detection probability, 'model': name of prediction model, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, DP, NB and sNB.
-#'   \item confidence.intervals: Level of confidence intervals returned.
+#'   \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPF':false positive fraction, 'TPF': true positive fraction, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'predictor': name of predictor, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, NB and sNB.
+#'   \item standardized: Whether standardized net benefit or net benefit is returned.
 #'   \item call: matched function call.
 #' }
 #'
 #' @seealso \code{\link{summary.decision.curve}},  \code{\link{Add_CostBenefit_Axis}}
 #' @examples
-#'#helper function
-#' expit <- function(xx) exp(xx)/ (1+exp(xx))
 #'
-#'#load simulated data
-#'data(dcaData)
-#'baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
-#'                                 data = dcaData,
-#'                                 thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
-#'                                 bootstraps = 25) #number of bootstraps should be higher
-#'
-#'full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
-#'                             data = dcaData,
-#'                             thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
-#'                             bootstraps = 25)
-#'
+#' #todo
 #'
 #' @export
 
-decision_curve <- function(formula,
-                          data,
-                          family = binomial(link = "logit"),
-                          fitted.risk = FALSE,
-                          thresholds = seq(0, 1, by = .01),
-                          confidence.intervals = 0.95,
-                          bootstraps = 500){
- call <- match.call()
-
-  #check vars are in data
-  if(any( names.check <- !is.element(all.vars(formula), names(data)))) stop(paste("variable(s)", paste( all.vars(formula)[names.check], collapse = ", ") , "not found in 'data'"))
-
- #throw out missing data
-  data <- data[,all.vars(formula)]
-  #complete case indicator
-  cc.ind <- complete.cases(data)
-
-  if(sum(cc.ind) < nrow(data)) warning(paste(sum(1-cc.ind), "observation(s) with missing data removed"))
-
-  data <- data[cc.ind,]
+cv_decision_curve <- function(formula,
+                           data,
+                           family = binomial(link = "logit"),
+                           fitted.risk = FALSE,
+                           thresholds = seq(0, 1, by = .01),
+                           confidence.intervals = 0.95,
+                           bootstraps = 500){
+  call <- match.call()
 
   #retreive outcome
   outcome <- data[[all.vars(formula[[2]])]]
   ## check inputs
-   #if fitted risks are provided, then there can only be one term on the rhs of formula
-   #and the provided risks must be
+  #if fitted risks are provided, then there can only be one term on the rhs of formula
+  #and the provided risks must be
   if(fitted.risk){
     message("Fitted risks are provided, no model fitting will be done by DecisionCurve. Bootstrap confidence intervals are conditional on the model used to fit risks.")
     if(length(all.vars(formula[[3]])) > 1) stop("When fitted.risk = TRUE, there can only be one term  (denoting the fitted risks) on the right hand side of the formula provided.")
@@ -91,11 +65,11 @@ decision_curve <- function(formula,
 
   n.out <- length(predictors)*length(thresholds)
   dc.data <- data.frame("thresholds" = numeric(n.out),
-                    "FPR" = numeric(n.out),"TPR" = numeric(n.out),
-                    "NB" = numeric(n.out), "sNB" = numeric(n.out),
-                    "rho" = numeric(n.out),"prob.high.risk" = numeric(n.out),
-                    "DP" = numeric(n.out),
-                    "model"= numeric(n.out))
+                        "FPR" = numeric(n.out),"TPR" = numeric(n.out),
+                        "NB" = numeric(n.out), "sNB" = numeric(n.out),
+                        "rho" = numeric(n.out),"prob.high.risk" = numeric(n.out),
+                        "DP" = numeric(n.out),
+                        "method"= numeric(n.out))
 
   #if ci's
   #set up vars for bootstrap ci's and first calculate bootstrap indices
@@ -119,19 +93,19 @@ decision_curve <- function(formula,
                               data = data,
                               formula.ind = formula.ind[i])
 
-    tmpNBdata$model <- predictor.names[[i]]
+    tmpNBdata$method <- predictor.names[[i]]
 
     if(is.numeric(confidence.intervals)){
       #calculate measures in each bootstrap
       boot.data <- apply(B.ind, 2, function(x){
 
-      calculate.nb(d = outcome[x],
-                   y = data[[predictors[[i]] ]][x],
-                   rH = thresholds,
-                   formula = formula,
-                   family = family,
-                   data = data[x,],
-                   formula.ind = formula.ind[i])})
+        calculate.nb(d = outcome[x],
+                     y = data[[predictors[[i]] ]][x],
+                     rH = thresholds,
+                     formula = formula,
+                     family = family,
+                     data = data[x,],
+                     formula.ind = formula.ind[i])})
 
       alpha = 1- confidence.intervals
       #go through each measure and get the quantiles from the bootstrap distribution at each threshold
@@ -162,12 +136,11 @@ decision_curve <- function(formula,
 
   #return list of elements
   out <- list("derived.data"  = dc.data,
-              "confidence.intervals" = confidence.intervals,
+              #"confidence.intervals" = confidence.intervals,
               "call" = call)
   class(out) = "decision_curve"
   invisible(out)
 
 }
-
 
 
