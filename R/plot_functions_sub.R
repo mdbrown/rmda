@@ -23,6 +23,12 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
     }
 
   }else if(class(x)=="list"){
+    xx <- NULL
+    #check to make sure each element of the list is a decision_curve object,
+    # or else we get funky results.
+    if(!all(sapply(x, FUN = function(xx) class(xx) == "decision_curve")) ){
+      stop("One or more elements of the list provided is not an object of class 'decision_curve' (output from the function 'decision_curve').")
+    }
 
     if(is.na(confidence.intervals[1])){
       confidence.intervals <- x[[1]]$confidence.intervals
@@ -32,6 +38,7 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
 
     message("Note: When multiple decision curves are plotted, decision curves for 'All' are calculated using the first DecisionCurve in the list provided.")
 
+    model <- NULL #appease check
     #multiple dc's to plot
     #pull the "all' and 'none' curves from the first element in x
     dc.data <- subset(x[[1]]$derived.data, is.element(model, c("All", "None")))
@@ -103,7 +110,7 @@ plot_generic<- function(xx, predictors, value, plotNew,
   old.par<- par("mar"); on.exit(par(mar = old.par))
 
 
-  xx.wide <- cast(xx, thresholds~model, value =  value, add.missing = TRUE, fill = NA)
+  xx.wide <- reshape::cast(xx, thresholds~model, value =  value, add.missing = TRUE, fill = NA)
   xx.wide$thresholds <- as.numeric(as.character(xx.wide$thresholds))
 
   if(is.numeric(confidence.intervals)){

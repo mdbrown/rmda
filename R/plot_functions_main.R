@@ -23,7 +23,7 @@
 #'set.seed(123)
 #'baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
 #'                                 data = dcaData,
-#'                                 thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+#'                                 thresholds = seq(0, .4, by = .001),
 #'                                 bootstraps = 25)
 #'
 #'#plot using the defaults
@@ -32,16 +32,16 @@
 #'set.seed(123)
 #'full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
 #'                             data = dcaData,
-#'                             thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
-#'                             bootstraps = 25)
+#'                             thresholds = seq(0, .4, by = .001),
+#'                             bootstraps = 10)
 #'
-#'
+#'# for lwd, the first two positions correspond to the decision curves, then 'all' and 'none'
 #'plot_decision_curve( list(baseline.model, full.model),
 #'                     curve.names = c("Baseline model", "Full model"),
 #'                     col = c("blue", "red"),
 #'                     lty = c(1,2),
-#'                     lwd = c(3,2, 2, 1),  # the first two positions correspond to the decision curves, then 'all' and 'none'
-#'                     legend.position = "bottomright") #adjust the legend position
+#'                     lwd = c(3,2, 2, 1),
+#'                     legend.position = "bottomright")
 #'
 #No confidence intervals, cost:benefit ratio axis, or legend
 #'
@@ -57,7 +57,7 @@
 #'plot_decision_curve( list(baseline.model, full.model),
 #'                     curve.names = c("Baseline model", "Full model"),
 #'                     col = c("blue", "red"),
-#'                     cost.benefits = c("1:1000", "1:4", "1:9", "2:3", "1:3"),  #set specific cost benefits
+#'                     cost.benefits = c("1:1000", "1:4", "1:9", "2:3", "1:3"),
 #'                     legend.position = "bottomright")
 #'
 #'#Plot net benefit instead of standardize net benefit.
@@ -120,7 +120,7 @@ plot_decision_curve <- function(x, curve.names,
     if(missing(ylim)){
 
     if(standardize) ylim = c(-1, 1)
-    else ylim = c(-0.05, max(xx[[value]][is.finite(xx[[value]])]))
+    else ylim = c(-0.05, 1.1*max(dc.data[["NB"]][is.finite(dc.data[["NB"]])]))
 
   }
 
@@ -150,7 +150,8 @@ plot_decision_curve <- function(x, curve.names,
 #' @param cost.benefits Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print. Default allows the function to calculate these automatically.
 #' @param confidence.intervals logical indicating whether to plot confidence intervals.
 #' @param col vector of length two indicating the color for the true positive rates and false positive rates, respectively.
-#' @param lty vector of linetypes. The first element corresponds to the tpr and the second to the fpr.
+#' @param lty.fpr linetype for the false positive rate curve.
+#' @param lty.tpr linetype for the true positive rate curve.
 #' @param lwd vector of linewidths. The first element corresponds to the tpr and the second to the fpr.
 #' @param xlim vector giving c(min, max) of x-axis. Defaults to c(min(thresholds), max(thresholds)).
 #' @param ylim vector giving c(min, max) of y-axis.
@@ -165,7 +166,7 @@ plot_decision_curve <- function(x, curve.names,
 #'set.seed(123)
 #'baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
 #'                                 data = dcaData,
-#'                                 thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+#'                                 thresholds = seq(0, .4, by = .001),
 #'                                 bootstraps = 25) #should use more bootstrap replicates in practice!
 #'
 #'#plot using the defaults
@@ -286,11 +287,11 @@ plot_roc_components <- function(x,
 #'set.seed(123)
 #'baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
 #'                                 data = dcaData,
-#'                                 thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+#'                                 thresholds = seq(0, .4, by = .001),
 #'                                 bootstraps = 25) #should use more bootstrap replicates in practice!
 #'
 #'#plot the clinical impact
-#'plot_clinical_impact(full.model, xlim = c(0, .4),
+#'plot_clinical_impact(baseline.model, xlim = c(0, .4),
 #'                     col = c("black", "blue"))
 #'
 #' @export
@@ -300,9 +301,9 @@ plot_clinical_impact <- function(x,
                             cost.benefit.axis = TRUE,
                             n.cost.benefits = 6,
                             cost.benefits,
-                            standardize = TRUE,
                             confidence.intervals,
                             col = "black",
+                            lty = 1,
                             lwd = 2,
                             xlim, ylim,
                             xlab = "Risk Threshold", ylab,
@@ -351,7 +352,7 @@ plot_clinical_impact <- function(x,
                cost.benefit.xlab = cost.benefit.xlab,
                xlab = xlab, ylab = ylab,
                col = col,
-               lty = 1, lwd = lwd,
+               lty = lty, lwd = lwd,
                xlim = xlim, ylim = ylim,
                legend.position = "none",
                population.size = population.size,

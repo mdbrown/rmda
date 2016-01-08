@@ -17,7 +17,7 @@
 #'   \item call: matched function call.
 #' }
 #'
-#' @seealso \code{\link{summary.decision.curve}},  \code{\link{Add_CostBenefit_Axis}}
+#' @seealso \code{\link{summary.decision_curve}},  \code{\link{Add_CostBenefit_Axis}}
 #' @examples
 #'#helper function
 #' expit <- function(xx) exp(xx)/ (1+exp(xx))
@@ -26,15 +26,15 @@
 #'data(dcaData)
 #'baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
 #'                                 data = dcaData,
-#'                                 thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+#'                                 thresholds = seq(0, .4, by = .001),
 #'                                 bootstraps = 25) #number of bootstraps should be higher
 #'
 #'full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
 #'                             data = dcaData,
-#'                             thresholds = seq(0, .4, by = .001),# calculate thresholds from 0-0.4 at every 0.001 increment.
+#'                             thresholds = seq(0, .4, by = .001),
 #'                             bootstraps = 25)
 #'
-#'
+#' @import MASS
 #' @export
 
 decision_curve <- function(formula,
@@ -134,6 +134,9 @@ decision_curve <- function(formula,
                    formula.ind = formula.ind[i])})
 
       alpha = 1- confidence.intervals
+
+      xx <- NULL #appease check
+
       #go through each measure and get the quantiles from the bootstrap distribution at each threshold
       for(rtn in names(boot.data[[1]][-1])){
         #collate the data from the measure estimates across bootstrap replicates

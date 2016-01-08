@@ -5,6 +5,8 @@
 #' @param measure name of summary measure to print out. For standardized net benefit: "sNB" (default), net benefit: "NB", true positive rate: "TPR", false positive rate: "FPR".
 #' @param nround number of decimal places to round (default 3).
 #' @method summary decision_curve
+#' @import pander
+#' @import reshape
 #' @examples
 #'#helper function
 #'
@@ -22,8 +24,8 @@
 #'
 #' @export
 
-summary.decision_curve <- function(x, ..., measure = c("sNB", "NB", "TPR", "FPR"), nround = 3){
-
+summary.decision_curve <- function(object, ..., measure = c("sNB", "NB", "TPR", "FPR"), nround = 3){
+  x <- object
   #get measure name for printing
   measure <- match.arg(measure)
   measure.names.df <- data.frame(measure = c("sNB", "NB", "TPR", "FPR"), measure.names = c("Standardized Net Benefit",
@@ -34,7 +36,7 @@ summary.decision_curve <- function(x, ..., measure = c("sNB", "NB", "TPR", "FPR"
 
   #if this is true, confidence intervals have been calculated
   conf.int <- ncol(x$derived.data) > 9
-
+  model <- NULL #appease check
   xx.wide <- cast(x$derived.data, thresholds+cost.benefit.ratio~model, value = measure)
   #need to add prob.high risk from the formula and convert to percent
   xx.wide$prob.high.risk <- subset(x$derived.data, !is.element(model, c("All", "None")))$prob.high.risk*100
