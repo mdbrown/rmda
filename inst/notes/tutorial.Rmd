@@ -1,7 +1,7 @@
 ---
-title: "DecisionCurve Tutorial (v.0.3)"
+title: "DecisionCurve Tutorial (v.0.5)"
 author: "Marshall Brown"
-date: "November 4, 2015"
+date: "December 15, 2015"
 output: 
   html_document: 
     theme: cerulean
@@ -17,7 +17,7 @@ navigate to the source package and use
 
 
 ```{r, eval = FALSE}
-install.packages("../DecisionCurve_0.3.tar.gz", repos = NULL, type = "source")
+install.packages("../DecisionCurve_0.5.tar.gz", repos = NULL, type = "source")
 ```
 
  or install the package directly from github. 
@@ -124,7 +124,7 @@ plot_decision_curve( list(baseline.model, full.model),
 
 ```
 
- - Set specific cost:benefit ratios. 
+ - Print specific cost:benefit ratios. 
 
 ```{r, message=FALSE}
 plot_decision_curve( list(baseline.model, full.model), 
@@ -220,26 +220,16 @@ summary(full.model, nround = 2, measure = "TPR") #outputs standardized net benef
 ```
 
 
-You can also access the data directly. `my.dc$derived.data` holds the net benefit and it's components. 
+You can also access the data directly. `full.model$derived.data` holds the net benefit and it's components. 
 
 ```{r, message=FALSE}
 head(full.model$derived.data)
 ```
 
 
+# Cross-validation (coming soon!)
 
-# Cross-validation (to do!)
-
-If you would like to 
-
-```{r, message=FALSE}
-head(full.model$derived.data)
-```
-
-
-
-
-# Case-Control data (to do!)
+# Case-Control data (coming soon!)
 
 
 

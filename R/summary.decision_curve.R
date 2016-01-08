@@ -35,12 +35,12 @@ summary.decision_curve <- function(x, ..., measure = c("sNB", "NB", "TPR", "FPR"
   #if this is true, confidence intervals have been calculated
   conf.int <- ncol(x$derived.data) > 9
 
-  xx.wide <- cast(x$derived.data, thresholds+cost.benefit.ratio~method, value = measure)
+  xx.wide <- cast(x$derived.data, thresholds+cost.benefit.ratio~model, value = measure)
   #need to add prob.high risk from the formula and convert to percent
-  xx.wide$prob.high.risk <- subset(x$derived.data, !is.element(method, c("All", "None")))$prob.high.risk*100
+  xx.wide$prob.high.risk <- subset(x$derived.data, !is.element(model, c("All", "None")))$prob.high.risk*100
 
   #rearrange terms to make sure we have the right ordering
-  formula.name <- unique(x$derived.data$method)
+  formula.name <- unique(x$derived.data$model)
   formula.name <- formula.name[!is.element(formula.name, c("None", "All"))]
 
   xx.wide <- xx.wide[, c("thresholds", "cost.benefit.ratio", "prob.high.risk", "All", formula.name, "None")]
@@ -49,12 +49,12 @@ summary.decision_curve <- function(x, ..., measure = c("sNB", "NB", "TPR", "FPR"
 
   if( conf.int){
 
-    xx.lower <- cast(x$derived.data, thresholds+cost.benefit.ratio~method, value = paste(measure, "_lower",sep = ""))
-    xx.lower$prob.high.risk <- subset(x$derived.data, !is.element(method, c("All", "None")))$prob.high.risk_lower*100
+    xx.lower <- cast(x$derived.data, thresholds+cost.benefit.ratio~model, value = paste(measure, "_lower",sep = ""))
+    xx.lower$prob.high.risk <- subset(x$derived.data, !is.element(model, c("All", "None")))$prob.high.risk_lower*100
     xx.lower <- xx.lower[, c("thresholds", "cost.benefit.ratio", "prob.high.risk", "All", formula.name, "None")]
 
-    xx.upper <- cast(x$derived.data, thresholds+cost.benefit.ratio~method, value = paste(measure, "_upper",sep = ""))
-    xx.upper$prob.high.risk <- subset(x$derived.data, !is.element(method, c("All", "None")))$prob.high.risk_upper*100
+    xx.upper <- cast(x$derived.data, thresholds+cost.benefit.ratio~model, value = paste(measure, "_upper",sep = ""))
+    xx.upper$prob.high.risk <- subset(x$derived.data, !is.element(model, c("All", "None")))$prob.high.risk_upper*100
     xx.upper <- xx.upper[, c("thresholds", "cost.benefit.ratio", "prob.high.risk", "All", formula.name, "None")]
 
   }else{
