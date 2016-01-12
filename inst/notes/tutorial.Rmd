@@ -5,6 +5,7 @@ date: "January 1, 2016"
 output: 
   html_document: 
     theme: cerulean
+    toc: yes
 ---
 
 Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available.
@@ -72,7 +73,7 @@ plot_decision_curve( list(baseline.model, full.model),
 ?plot_decision_curve
 ```
 
-## Other plot functions 
+## Alternative plotting functions
 
 We include two other functions `plot_roc_components` and `plot_clinical_impact`.
 
@@ -167,7 +168,7 @@ plot_decision_curve( list(baseline.model, full.model),
 ```
 
 
-# Providing fitted risks
+# Providing fitted risks from a previously developed model
 
 If a risk model has already been specified, and so no model fitting is needed, the user can specify `fitted.risks=TRUE` and provide them in the formula. No model fitting will be done and bootstrap confidence intervals will be conditional on the fitted model. 
 
@@ -231,7 +232,7 @@ You can also access the data directly. `full.model$derived.data` holds the net b
 head(full.model$derived.data)
 ```
 
-# Case-Control data
+# Case-control data
 
 If data is from a case-control study instead of an observational cohort, an estimate of the population level outcome prevalence is needed to calculate decision curves. Decision curves can be calculated by setting `study.design = "case-control"` and setting the `population.prevalence`. Once the `decision_curve` is calculated, all other calls to the plot functions remain the same. Note that bootstrap sampling is done stratified by outcome status for these data. 
 
