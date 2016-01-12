@@ -46,17 +46,35 @@ Confidence intervals for (standardized) net benefit are calculated pointwise at 
 #helper function
 expit <- function(xx) exp(xx)/ (1+exp(xx))
 
-#load simulated data
+#load simulated cohort data
 data(dcaData)
 baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
                                 data = dcaData,
                                 thresholds = seq(0, .4, by = .001),
+                                study.design = "cohort",
                                 bootstraps = 25) #number of bootstraps should be higher
 
 full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
                             data = dcaData,
                             thresholds = seq(0, .4, by = .001),
                             bootstraps = 25)
+
+#simulated case-control data with same variables as above
+data(dcaData_cc)
+
+table(dcaData_cc$Cancer)
+
+#estimated from the population where the
+#case-control sample comes from.
+population.rho = 0.11
+
+full.model_cc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+                               data = dcaData,
+                               thresholds = seq(0, .4, by = .01),
+                               bootstraps = 25,
+                               study.design = "case-control",
+                               population.prevalence = population.rho)
+
 
 }
 \seealso{
