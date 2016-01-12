@@ -2,7 +2,7 @@
 
 Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available.
 
-Confidence intervals calculated using the bootstrap can be displayed anda wrapper function to calculate cross-validated curves using k-fold cross-validation is also included. 
+Confidence intervals calculated using the bootstrap can be displayed and a wrapper function to calculate cross-validated curves using k-fold cross-validation is also included. 
 
 
 ## Installation
@@ -15,7 +15,7 @@ navigate to the source package and use
 
 
 ```{r, eval = FALSE}
-install.packages("../DecisionCurve_1.0.tar.gz", repos = NULL, type = "source")
+install.packages("../DecisionCurve_1.1.tar.gz", repos = NULL, type = "source")
 ```
 
 or install the package directly from github. 
