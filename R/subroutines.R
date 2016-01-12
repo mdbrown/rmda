@@ -15,8 +15,7 @@ calculate.nb <- function(y, d, rH, formula, data, family, formula.ind, casecontr
     }else{
       #offset by the relative observed outcome prevalence and the provided population rho
       obs.rho = mean(d)
-      offset = log((casecontrol.rho/(1-casecontrol.rho))/(obs.rho/(1-obs.rho)))
-
+      offset = log((casecontrol.rho)/ (1-casecontrol.rho))- log((obs.rho)/(1-obs.rho))
       myglm <- do.call(glm, list("formula" = formula, "data" = data, "family" = family, "offset" = rep(offset, nrow(data)) ))
 
     }

@@ -7,7 +7,9 @@ output:
     theme: cerulean
 ---
 
-Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available. Bootstrap confidence intervals are displayed as well.
+Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available.
+
+Confidence intervals calculated using the bootstrap can be displayed anda wrapper function to calculate cross-validated curves using k-fold cross-validation is also included. 
 
 ## Install the package 
 
@@ -229,34 +231,27 @@ You can also access the data directly. `full.model$derived.data` holds the net b
 head(full.model$derived.data)
 ```
 
-
-# Cross-validation (coming soon!)
-
 # Case-Control data
 
-If data is from a case-control study, an estimate of the population level outcome prevalence is needed to calculate decision curves. Decision curves can be calculated by setting `study.design = "case-control"` and setting the `population.prevalence`. Once the `decision_curve` is calculated, all other calls to the plot functions remain the same. Note that bootstrap sampling is done stratified by outcome status for these data. 
+If data is from a case-control study instead of an observational cohort, an estimate of the population level outcome prevalence is needed to calculate decision curves. Decision curves can be calculated by setting `study.design = "case-control"` and setting the `population.prevalence`. Once the `decision_curve` is calculated, all other calls to the plot functions remain the same. Note that bootstrap sampling is done stratified by outcome status for these data. 
 
 ```{r, message =FALSE}
-
 #simulated case-control data with same variables as above
 data(dcaData_cc)
-
-table(dcaData_cc$Cancer)
 
 #estimated from the population where the 
 #case-control sample comes from. 
 population.rho = 0.11
 
-
 baseline.model_cc <- decision_curve(Cancer~Age + Female + Smokes,
-                                    data = dcaData, 
+                                    data = dcaData_cc, 
                                     thresholds = seq(0, .4, by = .01),
                                     bootstraps = 25, 
                                     study.design = "case-control", 
                                     population.prevalence = population.rho)
 
 full.model_cc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
-                                data = dcaData, 
+                                data = dcaData_cc, 
                                 thresholds = seq(0, .4, by = .01),
                                 bootstraps = 25, 
                                 study.design = "case-control", 
@@ -269,6 +264,32 @@ plot_decision_curve( list(baseline.model_cc, full.model_cc),
                    lty = c(1,2), 
                    lwd = c(3,2, 2, 1), 
                    legend.position = "bottomright") 
+```
 
 
+
+# Cross-validation 
+
+When evaluating a model using the same 
+
+```{r, message =FALSE}
+
+full.model_cv <- cv_decision_curve(Cancer~Age + Female + Smokes,
+                                    data = dcaData,
+                                    folds = 5, 
+                                    thresholds = seq(0, .4, by = .01))
+
+full.model_apparent <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+                                data = dcaData, 
+                                thresholds = seq(0, .4, by = .01),
+                                confidence.intervals = 'none')
+
+
+plot_decision_curve( list(full.model_apparent, full.model_cv), 
+                   curve.names = c("Apparent curve", "Cross-validated curve"),
+                   col = c("red", "blue"), 
+                   lty = c(2,1), 
+                   lwd = c(3,2, 2, 1), 
+                   legend.position = "bottomright") 
+```
 

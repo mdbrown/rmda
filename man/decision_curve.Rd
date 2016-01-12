@@ -50,14 +50,14 @@ expit <- function(xx) exp(xx)/ (1+exp(xx))
 data(dcaData)
 baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
                                 data = dcaData,
-                                thresholds = seq(0, .4, by = .001),
+                                thresholds = seq(0, .4, by = .01),
                                 study.design = "cohort",
-                                bootstraps = 25) #number of bootstraps should be higher
+                                bootstraps = 10) #number of bootstraps should be higher
 
 full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
                             data = dcaData,
-                            thresholds = seq(0, .4, by = .001),
-                            bootstraps = 25)
+                            thresholds = seq(0, .4, by = .01),
+                            bootstraps = 10)
 
 #simulated case-control data with same variables as above
 data(dcaData_cc)
@@ -71,13 +71,13 @@ population.rho = 0.11
 full.model_cc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
                                data = dcaData,
                                thresholds = seq(0, .4, by = .01),
-                               bootstraps = 25,
+                               bootstraps = 10,
                                study.design = "case-control",
                                population.prevalence = population.rho)
 
 
 }
 \seealso{
-\code{\link{summary.decision_curve}},  \code{\link{Add_CostBenefit_Axis}}
+\code{\link{summary.decision_curve}}, \code{\link{cv_decision_curve}}, \code{\link{Add_CostBenefit_Axis}}
 }
 

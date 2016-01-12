@@ -23,8 +23,8 @@
 #'set.seed(123)
 #'baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
 #'                                 data = dcaData,
-#'                                 thresholds = seq(0, .4, by = .001),
-#'                                 bootstraps = 25)
+#'                                 thresholds = seq(0, .4, by = .005),
+#'                                 bootstraps = 10)
 #'
 #'#plot using the defaults
 #'plot_decision_curve(baseline.model,  curve.names = "baseline model")
@@ -32,7 +32,7 @@
 #'set.seed(123)
 #'full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
 #'                             data = dcaData,
-#'                             thresholds = seq(0, .4, by = .001),
+#'                             thresholds = seq(0, .4, by = .005),
 #'                             bootstraps = 10)
 #'
 #'# for lwd, the first two positions correspond to the decision curves, then 'all' and 'none'

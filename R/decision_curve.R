@@ -19,7 +19,7 @@
 #'   \item call: matched function call.
 #' }
 #'
-#' @seealso \code{\link{summary.decision_curve}},  \code{\link{Add_CostBenefit_Axis}}
+#' @seealso \code{\link{summary.decision_curve}}, \code{\link{cv_decision_curve}}, \code{\link{Add_CostBenefit_Axis}}
 #' @examples
 #'#helper function
 #' expit <- function(xx) exp(xx)/ (1+exp(xx))
@@ -28,14 +28,14 @@
 #'data(dcaData)
 #'baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
 #'                                 data = dcaData,
-#'                                 thresholds = seq(0, .4, by = .001),
+#'                                 thresholds = seq(0, .4, by = .01),
 #'                                 study.design = "cohort",
-#'                                 bootstraps = 25) #number of bootstraps should be higher
+#'                                 bootstraps = 10) #number of bootstraps should be higher
 #'
 #'full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
 #'                             data = dcaData,
-#'                             thresholds = seq(0, .4, by = .001),
-#'                             bootstraps = 25)
+#'                             thresholds = seq(0, .4, by = .01),
+#'                             bootstraps = 10)
 #'
 #'#simulated case-control data with same variables as above
 #'data(dcaData_cc)
@@ -49,7 +49,7 @@
 #'full.model_cc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
 #'                                data = dcaData,
 #'                                thresholds = seq(0, .4, by = .01),
-#'                                bootstraps = 25,
+#'                                bootstraps = 10,
 #'                                study.design = "case-control",
 #'                                population.prevalence = population.rho)
 #'
@@ -72,12 +72,11 @@ decision_curve <- function(formula,
   if(any( names.check <- !is.element(all.vars(formula), names(data)))) stop(paste("variable(s)", paste( all.vars(formula)[names.check], collapse = ", ") , "not found in 'data'"))
 
   study.design <- match.arg(study.design)
+  if(missing(population.prevalence)) population.prevalence <- NULL
 
   if(study.design == "cohort"){
-    if(missing(population.prevalence)){
-      population.prevalence <- NULL
-    }else{
-      warning("population.prevalence was provided, but study.design = 'cohort'. The value input for population.prevalence will be ignored. If you are using case-control data, please set study.desig = 'case-control'.")
+    if(!is.null(population.prevalence)){
+      warning("population.prevalence was provided, but study.design = 'cohort'. The value input for population.prevalence will be ignored. If you are using case-control data, please set study.design = 'case-control'.")
     }
   }else{
     if(missing(population.prevalence)){
@@ -98,14 +97,18 @@ decision_curve <- function(formula,
 
   data <- data[cc.ind,]
 
+  ## check inputs
   #retreive outcome
   outcome <- data[[all.vars(formula[[2]])]];
   if(length(unique(outcome)) != 2) stop("outcome variable is not binary (it does not take two unique values).")
-  ## check inputs
+  stopifnot(is.numeric(outcome))
+  if(min(outcome) != 0 | max(outcome) != 1) stop("outcome variable must be binary taking on values 0 for control and 1 for case.")
+
+
    #if fitted risks are provided, then there can only be one term on the rhs of formula
    #and the provided risks must be
   if(fitted.risk){
-    message("Fitted risks are provided, no model fitting will be done by DecisionCurve. Bootstrap confidence intervals are conditional on the model used to fit risks.")
+    #message("Fitted risks are provided, no model fitting will be done by DecisionCurve. Bootstrap confidence intervals are conditional on the model used to fit risks.")
     if(length(all.vars(formula[[3]])) > 1) stop("When fitted.risk = TRUE, there can only be one term  (denoting the fitted risks) on the right hand side of the formula provided.")
 
     provided.risks <-  data[[Reduce(paste, deparse(formula[[3]]))]] #get the name of the fitted risk variable from formula.
