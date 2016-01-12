@@ -9,7 +9,9 @@
 #' @param thresholds Numeric vector of high risk thresholds to use when plotting and calculating net benefit values.
 #' @param confidence.intervals Numeric (default 0.95 for 95\% confidence bands) level of bootstrap confidence intervals to plot. Set as NA or 'none' to remove confidence intervals. See details for more information.
 #' @param bootstraps Number of bootstrap replicates to use to calculate confidence intervals (default 500).
-#' @details  Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. Bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples.
+#' @param study.design Either 'cohort' (default) or 'case-control' describing the study design used to obtain data. See details for more information.
+#' @param population.prevalence  Outcome prevalence rate in the population used to calculate decision curves when study.design = 'case-control'.
+#' @details  Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. For when data come from an observational cohort, bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples. For case-control data, bootstrap sampling is done stratified on outcome.
 #' @return List with components
 #' \itemize{
 #'   \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'DP': detection probability, 'model': name of prediction model, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, DP, NB and sNB.
@@ -22,17 +24,35 @@
 #'#helper function
 #' expit <- function(xx) exp(xx)/ (1+exp(xx))
 #'
-#'#load simulated data
+#'#load simulated cohort data
 #'data(dcaData)
 #'baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
 #'                                 data = dcaData,
 #'                                 thresholds = seq(0, .4, by = .001),
+#'                                 study.design = "cohort",
 #'                                 bootstraps = 25) #number of bootstraps should be higher
 #'
 #'full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
 #'                             data = dcaData,
 #'                             thresholds = seq(0, .4, by = .001),
 #'                             bootstraps = 25)
+#'
+#'#simulated case-control data with same variables as above
+#'data(dcaData_cc)
+#'
+#'table(dcaData_cc$Cancer)
+#'
+#'#estimated from the population where the
+#'#case-control sample comes from.
+#'population.rho = 0.11
+#'
+#'full.model_cc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+#'                                data = dcaData,
+#'                                thresholds = seq(0, .4, by = .01),
+#'                                bootstraps = 25,
+#'                                study.design = "case-control",
+#'                                population.prevalence = population.rho)
+#'
 #'
 #' @import MASS
 #' @export
@@ -43,11 +63,31 @@ decision_curve <- function(formula,
                           fitted.risk = FALSE,
                           thresholds = seq(0, 1, by = .01),
                           confidence.intervals = 0.95,
-                          bootstraps = 500){
+                          bootstraps = 500,
+                          study.design = c("cohort", "case-control"),
+                          population.prevalence){
  call <- match.call()
 
   #check vars are in data
   if(any( names.check <- !is.element(all.vars(formula), names(data)))) stop(paste("variable(s)", paste( all.vars(formula)[names.check], collapse = ", ") , "not found in 'data'"))
+
+  study.design <- match.arg(study.design)
+
+  if(study.design == "cohort"){
+    if(missing(population.prevalence)){
+      population.prevalence <- NULL
+    }else{
+      warning("population.prevalence was provided, but study.design = 'cohort'. The value input for population.prevalence will be ignored. If you are using case-control data, please set study.desig = 'case-control'.")
+    }
+  }else{
+    if(missing(population.prevalence)){
+      stop("Need to set population.prevalence to calculate decision curves using case-control data.")
+    }else{
+      stopifnot(0< population.prevalence & population.prevalence <1)
+      message("Calculating net benefit curves for case-control data. All calculations are done conditional on the outcome prevalence provided.")
+
+    }
+  }
 
  #throw out missing data
   data <- data[,all.vars(formula)]
@@ -59,7 +99,8 @@ decision_curve <- function(formula,
   data <- data[cc.ind,]
 
   #retreive outcome
-  outcome <- data[[all.vars(formula[[2]])]]
+  outcome <- data[[all.vars(formula[[2]])]];
+  if(length(unique(outcome)) != 2) stop("outcome variable is not binary (it does not take two unique values).")
   ## check inputs
    #if fitted risks are provided, then there can only be one term on the rhs of formula
    #and the provided risks must be
@@ -103,7 +144,23 @@ decision_curve <- function(formula,
 
     #bootstrap sampling indices
     B.ind <- matrix(nrow = nrow(data), ncol = bootstraps)
-    for(b in 1:bootstraps) B.ind[,b] <- sample.int(nrow(data), replace = TRUE)
+
+    ## cohort design: don't stratify by outcome status.
+    if(study.design == "cohort"){
+        for(b in 1:bootstraps) B.ind[,b] <- sample.int(nrow(data), replace = TRUE)
+    }else{
+      #case-control design: stratify on outcome status for bootstrapping
+        all.ind  <- 1:nrow(data)
+
+        uu <- unique(outcome) #unique outcome levels
+
+        for(b in 1:bootstraps){
+          ind.1 <- sample(all.ind[outcome == uu[1] ], replace = TRUE)
+          ind.2 <- sample(all.ind[outcome == uu[2] ], replace = TRUE)
+
+          B.ind[,b] <- c(ind.1, ind.2)
+        }
+    }
     dc.data <- add.ci.columns(dc.data)
   }
 
@@ -117,7 +174,8 @@ decision_curve <- function(formula,
                               formula = formula,
                               family = family,
                               data = data,
-                              formula.ind = formula.ind[i])
+                              formula.ind = formula.ind[i],
+                              casecontrol.rho = population.prevalence)
 
     tmpNBdata$model <- predictor.names[[i]]
 
@@ -131,7 +189,8 @@ decision_curve <- function(formula,
                    formula = formula,
                    family = family,
                    data = data[x,],
-                   formula.ind = formula.ind[i])})
+                   formula.ind = formula.ind[i],
+                   casecontrol.rho = population.prevalence)})
 
       alpha = 1- confidence.intervals
 

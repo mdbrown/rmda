@@ -12,9 +12,7 @@ more instruments (risk models) that predict the probability of a binary outcome,
 this package calculates and plots decision curves, which display estimates of
 the standardized net benefit by the probabilty threshold used to categorize
 observations as 'high risk.' Bootstrap confidence intervals are displayed as
-well. This package is a companion to the manuscript 'Assessing the Clinical
-Impact of Risk Prediction Models with Decision Curves:  Guidance for Correct
-Interpretation and Appropriate Use' by Kerr et. al.
+well.
 }
 \details{
 Functions in this package include:

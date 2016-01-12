@@ -6,7 +6,8 @@
 \usage{
 decision_curve(formula, data, family = binomial(link = "logit"),
   fitted.risk = FALSE, thresholds = seq(0, 1, by = 0.01),
-  confidence.intervals = 0.95, bootstraps = 500)
+  confidence.intervals = 0.95, bootstraps = 500,
+  study.design = c("cohort", "case-control"), population.prevalence)
 }
 \arguments{
 \item{formula}{an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm.}
@@ -22,6 +23,10 @@ decision_curve(formula, data, family = binomial(link = "logit"),
 \item{confidence.intervals}{Numeric (default 0.95 for 95\% confidence bands) level of bootstrap confidence intervals to plot. Set as NA or 'none' to remove confidence intervals. See details for more information.}
 
 \item{bootstraps}{Number of bootstrap replicates to use to calculate confidence intervals (default 500).}
+
+\item{study.design}{Either 'cohort' (default) or 'case-control' describing the study design used to obtain data. See details for more information.}
+
+\item{population.prevalence}{Outcome prevalence rate in the population used to calculate decision curves when study.design = 'case-control'.}
 }
 \value{
 List with components
@@ -35,7 +40,7 @@ List with components
 Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probabilty threshold used to categorize observations as 'high risk.'  Bootstrap confidence intervals are displayed as well. This package is a companion to the manuscript '(put ref here.)'.
 }
 \details{
-Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. Bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples.
+Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. For when data come from an observational cohort, bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples. For case-control data, bootstrap sampling is done stratified on outcome.
 }
 \examples{
 #helper function

@@ -1,14 +1,26 @@
 
 
 #calculate net benefit for a fitted risk or by fitting a risk model if formula is specified
-calculate.nb <- function(y, d, rH, formula, data, family, formula.ind){
+calculate.nb <- function(y, d, rH, formula, data, family, formula.ind, casecontrol.rho){
   #predictor y,  estimated risk
   #disease indicator d
   #vector of high risk thresholds rH
 
   if(formula.ind){
-     myglm <- do.call(glm, list("formula" = formula, "data" = data, "family" = family ))
-     y <- fitted(myglm)
+
+    #cohort data, no correction for population level outcome rate
+    if(is.null(casecontrol.rho)){
+       myglm <- do.call(glm, list("formula" = formula, "data" = data, "family" = family ))
+
+    }else{
+      #offset by the relative observed outcome prevalence and the provided population rho
+      obs.rho = mean(d)
+      offset = log((casecontrol.rho/(1-casecontrol.rho))/(obs.rho/(1-obs.rho)))
+
+      myglm <- do.call(glm, list("formula" = formula, "data" = data, "family" = family, "offset" = rep(offset, nrow(data)) ))
+
+    }
+    y <- predict(myglm, type = "response")
   }
 
 
@@ -24,7 +36,11 @@ calculate.nb <- function(y, d, rH, formula, data, family, formula.ind){
   fpf <- sum.I(rH, "<", y[d==0])/ (N - tpf.den)
 
   #disease prevalence
-  rho = mean(d==1)
+if(is.null(casecontrol.rho)){
+    rho = mean(d==1)
+  }else{
+    rho = casecontrol.rho
+  }
 
   #net benefit
   nb = tpf*rho - (rH/(1-rH))*(1-rho)*fpf
