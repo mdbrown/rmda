@@ -16,6 +16,7 @@ Description: Decision curves are a useful tool to evaluate the population impact
  a wrapper function to calculate cross-validated curves using k-fold cross-validation is
  also included.
 License: GPL-2
+URL: http://mdbrown.github.io/DecisionCurve/
 LazyData: TRUE
 Depends:
     reshape,

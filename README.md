@@ -26,4 +26,4 @@ library(devtools)
 install_github("mdbrown/DecisionCurve")
 ```
 
-click [here](http://rpubs.com/mdbrown/DecisionCurveTutorial) for a quick tutorial to get you started. 
+click [here](http://mdbrown.github.io/DecisionCurve/) for a tutorial to get you started. 
