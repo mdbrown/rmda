@@ -1,7 +1,7 @@
 ---
 title: "DecisionCurve Tutorial (v.1.0)"
 author: "Marshall Brown"
-date: "January 1, 2016"
+date: "January 13, 2016"
 output: 
   html_document: 
     theme: cerulean
@@ -37,8 +37,8 @@ install_github("mdbrown/DecisionCurve")
 
 Load the package and the provided simulated data set.  First we use the function `decision_curve` to create a decision curve object for a logistic model to predict cancer status using age, gender and smoking status. We then plot it using `plot_decision_curve`. 
 
-```{r, message=FALSE}
-library(DecisionCurve, quietly = TRUE)
+```{r, message=FALSE, warning = FALSE}
+library(DecisionCurve)
 
 #load simulated data 
 data(dcaData)
@@ -271,7 +271,7 @@ plot_decision_curve( list(baseline.model_cc, full.model_cc),
 
 # Cross-validation 
 
-When evaluating a model using the same 
+We provide a wrapper to perform k-fold cross-validation to obtain bias corrected decision curves. Once `cv_decision_curve` is called, all plot and summary functions work the same as shown above for `decision_curve` output. Confidence interval calculation is not available at this time for cross-validated curves.  
 
 ```{r, message =FALSE}
 
