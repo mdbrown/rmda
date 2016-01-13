@@ -2,7 +2,7 @@
 #'
 #'Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probabilty threshold used to categorize observations as 'high risk.'  Bootstrap confidence intervals are displayed as well. This package is a companion to the manuscript '(put ref here.)'.
 #'
-#' @param formula an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm.
+#' @param formula an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm. The outcome must be a binary variable that equals '1' for cases and '0' for controls.
 #' @param data data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.
 #' @param family a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.
 #' @param fitted.risk logical (default FALSE) indicating whether the predictor provided are estimated risks from an already established model. If set to TRUE, no model fitting will be done and all estimates will be conditional on the risks provided.  Risks must fall between 0 and 1.
@@ -81,6 +81,7 @@ decision_curve <- function(formula,
   }else{
     if(missing(population.prevalence)){
       stop("Need to set population.prevalence to calculate decision curves using case-control data.")
+      if(family$family != "binomial") error("Calculations for case-control data are done assuming logistic regression (family = binomial(link = 'logit'))")
     }else{
       stopifnot(0< population.prevalence & population.prevalence <1)
       message("Calculating net benefit curves for case-control data. All calculations are done conditional on the outcome prevalence provided.")
@@ -144,7 +145,7 @@ decision_curve <- function(formula,
   #if ci's
   #set up vars for bootstrap ci's and first calculate bootstrap indices
   if(is.numeric(confidence.intervals))  {
-
+    if(bootstraps < 1 ) stop("bootstraps must be greater than 0. If no confidence intervals are needed, set `confidence.intervals = 'none'`")
     #bootstrap sampling indices
     B.ind <- matrix(nrow = nrow(data), ncol = bootstraps)
 

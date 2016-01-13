@@ -11,17 +11,17 @@ calculate.nb <- function(y, d, rH, formula, data, family, formula.ind, casecontr
     #cohort data, no correction for population level outcome rate
     if(is.null(casecontrol.rho)){
        myglm <- do.call(glm, list("formula" = formula, "data" = data, "family" = family ))
-
+       y <- fitted(myglm)
     }else{
       #offset by the relative observed outcome prevalence and the provided population rho
       obs.rho = mean(d)
-      offset = log((casecontrol.rho)/ (1-casecontrol.rho))- log((obs.rho)/(1-obs.rho))
+      offset = - log((casecontrol.rho)/ (1-casecontrol.rho)) + log((obs.rho)/(1-obs.rho))
       myglm <- do.call(glm, list("formula" = formula, "data" = data, "family" = family, "offset" = rep(offset, nrow(data)) ))
-
+      y = predict(myglm, type = "link") - offset
+      y <- exp(y)/(1+exp(y))
     }
-    y <- predict(myglm, type = "response")
-  }
 
+  }
 
   N = length(y)
 
@@ -36,10 +36,14 @@ calculate.nb <- function(y, d, rH, formula, data, family, formula.ind, casecontr
 
   #disease prevalence
 if(is.null(casecontrol.rho)){
-    rho = mean(d==1)
+    rho = mean(d ==1)
+    prob.high.risk <- sum.I(rH, "<", y)/length(y)
+
   }else{
     rho = casecontrol.rho
+    prob.high.risk <- rho*sum.I(rH, "<", y[d==1])/length(y[d==1]) + (1-rho)*sum.I(rH, "<", y[d==0])/length(y[d==0])
   }
+
 
   #net benefit
   nb = tpf*rho - (rH/(1-rH))*(1-rho)*fpf
@@ -49,8 +53,6 @@ if(is.null(casecontrol.rho)){
 
   #detection probability (for impact plots)
   dp <- tpf*rho
-
-  prob.high.risk <- sum.I(rH, "<", y)/length(y)
 
   out  = data.frame("threshold" = rH,
                     "FPR" = fpf , "TPR" = tpf,
@@ -85,7 +87,9 @@ VTM <- function(vc, dm)
 }
 
 
-
+#this function is magic!
+#for each element of yy it gives the count of how many Yi fall <, >, <=, or >= to it
+#output is a vector of length yy.
 sum.I<-function(yy,FUN,Yi,Vi=NULL){
 
   if (FUN=="<"|FUN==">=") { yy <- -yy; Yi <- -Yi}

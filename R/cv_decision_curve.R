@@ -2,7 +2,7 @@
 #'
 #' This is a wrapper for 'decision_curve' that computes k-fold cross-validated estimates of sensitivity, specificity, and net benefit so that cross-validated net benefit curves can be plotted.
 #'
-#' @param formula an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm.
+#' @param formula an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm. The outcome must be a binary variable that equals '1' for cases and '0' for controls.
 #' @param data data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.
 #' @param family a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.
 #' @param thresholds Numeric vector of high risk thresholds to use when plotting and calculating net benefit values.
@@ -87,7 +87,7 @@ cv_decision_curve <- function(formula,
       #case.control
       #offset by the relative observed outcome prevalence and the provided population rho
       obs.rho = mean(outcome)
-      offset = log((population.prevalence)/ (1-(population.prevalence)))- log((obs.rho)/(1-obs.rho))
+      offset = - log((population.prevalence)/ (1-(population.prevalence))) + log((obs.rho)/(1-obs.rho))
       myglm <- do.call(glm, list("formula" = formula, "data" = data[-myfold.ind[[kk]], ], "family" = family, "offset" = rep(offset, nrow(data)) ))
 
     }

@@ -275,7 +275,7 @@ When evaluating a model using the same
 
 ```{r, message =FALSE}
 
-full.model_cv <- cv_decision_curve(Cancer~Age + Female + Smokes,
+full.model_cv <- cv_decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
                                     data = dcaData,
                                     folds = 5, 
                                     thresholds = seq(0, .4, by = .01))
