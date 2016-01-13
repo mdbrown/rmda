@@ -55,6 +55,9 @@
 #'
 #'
 #' @import MASS
+#' @importFrom grDevices rainbow
+#' @importFrom graphics axis grid legend lines mtext par  plot
+#' @importFrom stats binomial complete.cases fitted glm predict quantile
 #' @export
 
 decision_curve <- function(formula,
@@ -66,12 +69,36 @@ decision_curve <- function(formula,
                           bootstraps = 500,
                           study.design = c("cohort", "case-control"),
                           population.prevalence){
- call <- match.call()
+  call <- match.call()
+
+  #################
+  ### Begin Checks
+  stopifnot(class(formula) == "formula")  #check formula
+  stopifnot(is.data.frame(data)) #check data
+  stopifnot(is.logical(fitted.risk))
+  stopifnot(is.numeric(thresholds))
+  stopifnot(all(thresholds >= 0)); stopifnot(all(thresholds <= 1));
+  if(is.numeric(confidence.intervals)) stopifnot(confidence.intervals > 0 & confidence.intervals < 1)
+  stopifnot(is.numeric(bootstraps))
+  study.design <- match.arg(study.design)
+
+  if(!missing(population.prevalence)) {
+    stopifnot(is.numeric(population.prevalence))
+    stopifnot(population.prevalence > 0 & population.prevalence < 1)
+  }
 
   #check vars are in data
   if(any( names.check <- !is.element(all.vars(formula), names(data)))) stop(paste("variable(s)", paste( all.vars(formula)[names.check], collapse = ", ") , "not found in 'data'"))
 
-  study.design <- match.arg(study.design)
+  #throw out missing data
+  data <- data[,all.vars(formula)]
+  #complete case indicator
+  cc.ind <- complete.cases(data)
+  if(sum(cc.ind) < nrow(data)) warning(paste(sum(1-cc.ind), "observation(s) with missing data removed"))
+
+  data <- data[cc.ind,]
+
+  #study design
   if(missing(population.prevalence)) population.prevalence <- NULL
 
   if(study.design == "cohort"){
@@ -89,17 +116,7 @@ decision_curve <- function(formula,
     }
   }
 
- #throw out missing data
-  data <- data[,all.vars(formula)]
-  #complete case indicator
-  cc.ind <- complete.cases(data)
-
-  if(sum(cc.ind) < nrow(data)) warning(paste(sum(1-cc.ind), "observation(s) with missing data removed"))
-
-  data <- data[cc.ind,]
-
-  ## check inputs
-  #retreive outcome
+  #retreive outcome and check
   outcome <- data[[all.vars(formula[[2]])]];
   if(length(unique(outcome)) != 2) stop("outcome variable is not binary (it does not take two unique values).")
   stopifnot(is.numeric(outcome))
@@ -116,7 +133,9 @@ decision_curve <- function(formula,
     if(min(provided.risks) < 0 | max(provided.risks) > 1) stop("When fitted.risks = TRUE, all risks provided must be between 0 and 1.")
 
   }
-  #...
+  #########
+  ## End Checks
+  #########
 
   #calculate curves
   #first we fit the model
@@ -142,8 +161,9 @@ decision_curve <- function(formula,
                     "DP" = numeric(n.out),
                     "model"= numeric(n.out))
 
+
   #if ci's
-  #set up vars for bootstrap ci's and first calculate bootstrap indices
+  #set up vars for bootstrap ci's and calculate bootstrap indices
   if(is.numeric(confidence.intervals))  {
     if(bootstraps < 1 ) stop("bootstraps must be greater than 0. If no confidence intervals are needed, set `confidence.intervals = 'none'`")
     #bootstrap sampling indices
@@ -155,7 +175,6 @@ decision_curve <- function(formula,
     }else{
       #case-control design: stratify on outcome status for bootstrapping
         all.ind  <- 1:nrow(data)
-
         uu <- unique(outcome) #unique outcome levels
 
         for(b in 1:bootstraps){
@@ -170,6 +189,7 @@ decision_curve <- function(formula,
 
   index = 1
   n.pred = 1
+  #cycle through the model provided, all and none
   for(i in 1:n.preds){
 
     tmpNBdata <- calculate.nb(d = outcome,
@@ -182,6 +202,10 @@ decision_curve <- function(formula,
                               casecontrol.rho = population.prevalence)
 
     tmpNBdata$model <- predictor.names[[i]]
+
+    #################
+    ## Bootstrapping for CI's
+    ###############
 
     if(is.numeric(confidence.intervals)){
       #calculate measures in each bootstrap
