@@ -2,10 +2,6 @@
     "path" : "~/DecisionCurve-All/DecisionCurve/inst/notes",
     "sortOrder" : [
         {
-            "ascending" : false,
-            "columnIndex" : 4
-        },
-        {
             "ascending" : true,
             "columnIndex" : 2
         }
