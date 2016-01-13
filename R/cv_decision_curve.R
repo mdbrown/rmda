@@ -19,7 +19,22 @@
 #' @seealso \code{\link{summary.decision_curve}}, \code{\link{decision_curve}},  \code{\link{Add_CostBenefit_Axis}}
 #' @examples
 #'
-#' #todo
+#' full.model_cv <- cv_decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+#'                                   data = dcaData,
+#'                                   folds = 5,
+#'                                   thresholds = seq(0, .4, by = .01))
+#'
+#'full.model_apparent <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+#'                                      data = dcaData,
+#'                                      thresholds = seq(0, .4, by = .01),
+#'                                      confidence.intervals = 'none')
+#'
+#'plot_decision_curve( list(full.model_apparent, full.model_cv),
+#'                     curve.names = c("Apparent curve", "Cross-validated curve"),
+#'                     col = c("red", "blue"),
+#'                     lty = c(2,1),
+#'                     lwd = c(3,2, 2, 1),
+#'                     legend.position = "bottomright")
 #'
 #' @importFrom caret createFolds
 #' @export
