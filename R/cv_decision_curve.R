@@ -11,8 +11,8 @@
 #' @param population.prevalence  Outcome prevalence rate in the population used to calculate decision curves when study.design = 'case-control'.
 #' @return List with components
 #' \itemize{
-#'   \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPF':false positive fraction, 'TPF': true positive fraction, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'predictor': name of predictor, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, NB and sNB.
-#'   \item standardized: Whether standardized net benefit or net benefit is returned.
+#'   \item derived.data: derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'prob.high.risk': percent of the population considered high risk. DP': detection probability = TPR*rho, 'model': name of prediction model or 'all' or 'none', and cost.benefit.ratio's.
+#'   \item folds: number of folds used for cross-validation.
 #'   \item call: matched function call.
 #' }
 #'
@@ -98,17 +98,19 @@ cv_decision_curve <- function(formula,
     #cohort
     if(study.design == "cohort"){
       myglm <- do.call(glm, list("formula" = formula, "data" = data[-myfolds.ind[[kk]], ], "family" = family ))
-    }else{
+      offset = 0
+      }else{
       #case.control
       #offset by the relative observed outcome prevalence and the provided population rho
       obs.rho = mean(outcome)
       offset = - log((population.prevalence)/ (1-(population.prevalence))) + log((obs.rho)/(1-obs.rho))
-      myglm <- do.call(glm, list("formula" = formula, "data" = data[-myfold.ind[[kk]], ], "family" = family, "offset" = rep(offset, nrow(data)) ))
+      myglm <- do.call(glm, list("formula" = formula, "data" = data[-myfolds.ind[[kk]], ], "family" = family, "offset" = rep(offset, nrow(data[-myfolds.ind[[kk]], ])) ))
 
     }
 
     #predict on fold kk
-    y <- predict(myglm, newdata = data[myfolds.ind[[kk]], ], type = "response")
+    y <- predict(myglm, newdata = data[myfolds.ind[[kk]], ], type = "link") - offset
+    y <- exp(y)/(1+exp(y))
 
     dat.cv <- data.frame("outcome" = outcome[myfolds.ind[[kk]]], "risk.hat" = y)
 

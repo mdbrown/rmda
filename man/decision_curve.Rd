@@ -10,7 +10,7 @@ decision_curve(formula, data, family = binomial(link = "logit"),
   study.design = c("cohort", "case-control"), population.prevalence)
 }
 \arguments{
-\item{formula}{an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm.}
+\item{formula}{an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm. The outcome must be a binary variable that equals '1' for cases and '0' for controls.}
 
 \item{data}{data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.}
 
@@ -31,7 +31,7 @@ decision_curve(formula, data, family = binomial(link = "logit"),
 \value{
 List with components
 \itemize{
-  \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'DP': detection probability, 'model': name of prediction model, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, DP, NB and sNB.
+  \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'prob.high.risk': percent of the population considered high risk. DP': detection probability = TPR*rho, 'model': name of prediction model or 'all' or 'none', cost.benefit.ratio, and 'xx_lower', 'xx_upper': the lower and upper confidence bands for all measures (if calculated).
   \item confidence.intervals: Level of confidence intervals returned.
   \item call: matched function call.
 }

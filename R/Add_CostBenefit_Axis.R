@@ -7,7 +7,7 @@
 #' @param line x-axis line to print the axis (default is 4).
 #' @param ... other options sent to `axis`.
 #'
-#' @return List with components threshold, name
+#' @return List with components threshold, value and name.
 #'
 #' @seealso \code{\link{summary.decision_curve}},  \code{\link{decision_curve}}
 #'

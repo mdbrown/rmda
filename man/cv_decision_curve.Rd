@@ -9,7 +9,7 @@ cv_decision_curve(formula, data, family = binomial(link = "logit"),
   "case-control"), population.prevalence)
 }
 \arguments{
-\item{formula}{an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm.}
+\item{formula}{an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm. The outcome must be a binary variable that equals '1' for cases and '0' for controls.}
 
 \item{data}{data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.}
 
@@ -26,8 +26,8 @@ cv_decision_curve(formula, data, family = binomial(link = "logit"),
 \value{
 List with components
 \itemize{
-  \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPF':false positive fraction, 'TPF': true positive fraction, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'predictor': name of predictor, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, NB and sNB.
-  \item standardized: Whether standardized net benefit or net benefit is returned.
+  \item derived.data: derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'prob.high.risk': percent of the population considered high risk. DP': detection probability = TPR*rho, 'model': name of prediction model or 'all' or 'none', and cost.benefit.ratio's.
+  \item folds: number of folds used for cross-validation.
   \item call: matched function call.
 }
 }
@@ -36,7 +36,22 @@ This is a wrapper for 'decision_curve' that computes k-fold cross-validated esti
 }
 \examples{
 
-#todo
+full.model_cv <- cv_decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+                                  data = dcaData,
+                                  folds = 5,
+                                  thresholds = seq(0, .4, by = .01))
+
+full.model_apparent <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+                                     data = dcaData,
+                                     thresholds = seq(0, .4, by = .01),
+                                     confidence.intervals = 'none')
+
+plot_decision_curve( list(full.model_apparent, full.model_cv),
+                    curve.names = c("Apparent curve", "Cross-validated curve"),
+                    col = c("red", "blue"),
+                    lty = c(2,1),
+                    lwd = c(3,2, 2, 1),
+                    legend.position = "bottomright")
 
 }
 \seealso{

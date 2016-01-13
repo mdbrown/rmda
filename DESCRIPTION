@@ -14,12 +14,13 @@ Description: Decision curves are a useful tool to evaluate the population impact
  from case-control studies when an estimate of the population outcome prevalence
  is available. Confidence intervals calculated using the bootstrap can be displayed and
  a wrapper function to calculate cross-validated curves using k-fold cross-validation is
- also included.
+ also provided.
 License: GPL-2
-URL: http://mdbrown.github.io/DecisionCurve/
+URL: http://mdbrown.github.io/DecisionCurve/, https://github.com/mdbrown/DecisionCurve
 LazyData: TRUE
-Depends:
+Imports:
     reshape,
     pander,
-    MASS
+    MASS,
+    caret
 RoxygenNote: 5.0.1

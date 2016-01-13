@@ -19,7 +19,7 @@ Add_CostBenefit_Axis(xlim, cost.benefits, n.cost.benefits = 6, line = 4,
 \item{...}{other options sent to `axis`.}
 }
 \value{
-List with components threshold, name
+List with components threshold, value and name.
 }
 \description{
 Add cost benefit ratio axis to a decision curve plot.

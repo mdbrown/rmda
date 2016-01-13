@@ -14,7 +14,7 @@
 #' @details  Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. For when data come from an observational cohort, bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples. For case-control data, bootstrap sampling is done stratified on outcome.
 #' @return List with components
 #' \itemize{
-#'   \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'DP': detection probability, 'model': name of prediction model, 'xx_lower', 'xx_upper': the lower and upper confidence bands for TPF, FPF, rho, DP, NB and sNB.
+#'   \item derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'prob.high.risk': percent of the population considered high risk. DP': detection probability = TPR*rho, 'model': name of prediction model or 'all' or 'none', cost.benefit.ratio, and 'xx_lower', 'xx_upper': the lower and upper confidence bands for all measures (if calculated).
 #'   \item confidence.intervals: Level of confidence intervals returned.
 #'   \item call: matched function call.
 #' }
@@ -81,7 +81,7 @@ decision_curve <- function(formula,
   }else{
     if(missing(population.prevalence)){
       stop("Need to set population.prevalence to calculate decision curves using case-control data.")
-      if(family$family != "binomial") error("Calculations for case-control data are done assuming logistic regression (family = binomial(link = 'logit'))")
+      if(family$family != "binomial") stop("Calculations for case-control data are done assuming logistic regression (family = binomial(link = 'logit'))")
     }else{
       stopifnot(0< population.prevalence & population.prevalence <1)
       message("Calculating net benefit curves for case-control data. All calculations are done conditional on the outcome prevalence provided.")
