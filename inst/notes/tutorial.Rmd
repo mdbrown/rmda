@@ -1,5 +1,5 @@
 ---
-title: "DecisionCurve Tutorial (v.1.0)"
+title: "DecisionCurve Tutorial (v.1.1)"
 author: "Marshall Brown"
 date: "January 13, 2016"
 output: 
