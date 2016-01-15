@@ -37,7 +37,7 @@ List with components
 }
 }
 \description{
-Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probabilty threshold used to categorize observations as 'high risk.'  Bootstrap confidence intervals are displayed as well. This package is a companion to the manuscript '(put ref here.)'.
+This function calculates decision curves, which are estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' Curves can be estimated using data from an observational cohort (default), or from case-control studies when an estimate of the population outcome prevalence is available. Confidence intervals calculated using the bootstrap are calculated as well. Once this function is called, use \code{plot_decision_curve} or \code{summary} to plot or view the curves, respectively.
 }
 \details{
 Confidence intervals for (standardized) net benefit are calculated pointwise at each risk threshold. For when data come from an observational cohort, bootstrap sampling is done without stratifying on outcome, so disease prevalence varies within bootstrap samples. For case-control data, bootstrap sampling is done stratified on outcome.
