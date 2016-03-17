@@ -209,11 +209,11 @@ plot_generic<- function(xx, predictors, value, plotNew,
   if(is.element(legend.position, c("bottomright", "topright", "bottomleft", "topleft", "right", "left", "top", "bottom"))){
 
     if(value == "NB" | value == "sNB"){
-     legend(legend.position, lty = lty, col = col, lwd = lwd, legend = c(predictors, "All", "None"))
+     legend(legend.position, lty = lty, col = col, lwd = lwd, legend = c(predictors, "All", "None"),  bg  = "white")
     }else if(tpr.fpr.legend){
       n.preds <- length(predictors)
       legend(legend.position,
-             lty = c( lty.tpr, lty.fpr),
+             lty = c( lty.tpr, lty.fpr), bg  = "white", 
              col = col,
              lwd = lwd, legend = c("True positive rate", "False positive rate"))
 
@@ -221,7 +221,7 @@ plot_generic<- function(xx, predictors, value, plotNew,
     } else if(impact.legend){
       legend(legend.position,
              lty = c( 1, 2),
-             col = col,
+             col = col, bg  = "white", 
              lwd = lwd, legend = c("Number high risk", "Number high risk with outcome"))
 
     }
