@@ -31,7 +31,14 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
     }
 
     if(is.na(confidence.intervals[1])){
-      confidence.intervals <- x[[1]]$confidence.intervals
+
+      ci.list <- sapply(x, FUN = function(x) x$confidence.intervals)
+      ci.list.log <- sapply(x, FUN = function(x) is.numeric(x$confidence.intervals))
+      ci.list.num <- as.numeric(ci.list[ci.list.log])
+
+      if(length(unique(ci.list.num))!=1){warning("Confidence intervals of different sizes are being plotted on the same figure.")}
+
+      confidence.intervals <- ifelse(any(ci.list.log), 1, "none")
     }else{
       confidence.intervals <- ifelse(confidence.intervals, 1, "none")
     }
@@ -213,7 +220,7 @@ plot_generic<- function(xx, predictors, value, plotNew,
     }else if(tpr.fpr.legend){
       n.preds <- length(predictors)
       legend(legend.position,
-             lty = c( lty.tpr, lty.fpr), bg  = "white", 
+             lty = c( lty.tpr, lty.fpr), bg  = "white",
              col = col,
              lwd = lwd, legend = c("True positive rate", "False positive rate"))
 
@@ -221,7 +228,7 @@ plot_generic<- function(xx, predictors, value, plotNew,
     } else if(impact.legend){
       legend(legend.position,
              lty = c( 1, 2),
-             col = col, bg  = "white", 
+             col = col, bg  = "white",
              lwd = lwd, legend = c("Number high risk", "Number high risk with outcome"))
 
     }

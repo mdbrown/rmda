@@ -74,7 +74,7 @@ cv_decision_curve <- function(formula,
   ####################
 
   #create cross-validation folds using caret's 'createFolds'
-  myfolds.ind <- createFolds(y = outcome, k = folds)
+  myfolds.ind <- createFolds(y = as.factor(outcome), k = folds)
   #check to make sure there are cases and controls in each fold
   lapply(myfolds.ind, FUN = function(x){ if(length(table(outcome[x])) < 2) stop("Reduce number of folds requested: there are not enough cases to allocate across all folds")})
   #make sure there are at least 5 cases per fold.

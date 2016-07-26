@@ -187,6 +187,8 @@ decision_curve <- function(formula,
     dc.data <- add.ci.columns(dc.data)
   }
 
+
+
   index = 1
   n.pred = 1
   #cycle through the model provided, all and none
@@ -241,6 +243,8 @@ decision_curve <- function(formula,
     n.pred = n.pred + 1
   }
 
+  #no ci's but we need to fill in the data.frame anyway
+  if(!is.numeric(confidence.intervals)){dc.data <- add.ci.columns(dc.data)}
 
   dc.data$cost.benefit.ratio <- as.character(fractions(threshold_to_costbenefit(dc.data$thresholds)))
   #find indices without a fraction and make them "xx/1"
