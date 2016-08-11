@@ -1,0 +1,5 @@
+DecisionCurve 1.3
+========================
+ * fixed bug in the inputs for createFolds for cv_decision_curve.
+ 
+* allowed for multiple curves to be plotted together when one curve has CI’s and the other doesn’t
