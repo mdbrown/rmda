@@ -29,7 +29,7 @@ You may also download the current version of the package here:
 navigate to the source package and use 
 
 ```r
-install.packages("../DecisionCurve_1.1.tar.gz", 
+install.packages("../DecisionCurve_1.3.tar.gz", 
                   repos = NULL, 
                   type = "source")
 ```
