@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "library(\"DecisionCurve\")\n\n#MWE for MB\n\nDC_dev <- decision_curve(Cancer ~ Age + Female + Smokes + Marker1 + Marker2, data =dcaData, thresholds =seq(0, .4, by = .01), bootstraps=1000)\n\nDC_dev_cv <- cv_decision_curve(Cancer ~ Age + Female + Smokes + Marker1 + Marker2, data =dcaData, folds=10, thresholds = seq(0, .4, by = .01))\n\nplot_decision_curve(list(DC_dev_cv,DC_dev), curve.names = c(\"dev    \",\"dev_cv    \"), col = c(\"green\",\"blue\"), lty = c(1,1),legend.position = \"bottomright\")\nhead(DC_dev_cv$derived.data)\n",
+    "created" : 1469570503123.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "1294484604",
+    "id" : "8385BF35",
+    "lastKnownWriteTime" : 0,
+    "last_content_update" : 1469574130594,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

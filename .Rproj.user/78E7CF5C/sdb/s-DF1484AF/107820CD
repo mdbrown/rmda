@@ -1,0 +1,17 @@
+{
+    "contents" : "Package: DecisionCurve\nType: Package\nTitle: Calculate and Plot Decision Curves\nVersion: 1.0\nDate: 2016-01-01\nAuthor: Marshall Brown\nMaintainer: Marshall Brown <mdbrown@fredhutch.org>\nDescription: Decision curves are a useful tool to evaluate the population impact\n of adopting a risk prediction instrument into clinical practice. Given one or more\n instruments (risk models) that predict the probability of a binary outcome, this\n package calculates and plots decision curves, which display estimates of the\n standardized net benefit by the probability threshold used to categorize observations\n as 'high risk.' Curves can be estimated using data from an observational cohort, or\n from case-control studies when an estimate of the population outcome prevalence\n is available. Confidence intervals calculated using the bootstrap can be displayed and\n a wrapper function to calculate cross-validated curves using k-fold cross-validation is\n also included.\nLicense: GPL-2\nLazyData: TRUE\nDepends:\n    reshape,\n    pander,\n    MASS\nRoxygenNote: 5.0.1\n",
+    "created" : 1452636905556.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3982249802",
+    "id" : "107820CD",
+    "lastKnownWriteTime" : 1452637165,
+    "path" : "~/DecisionCurve-All/DecisionCurve/DESCRIPTION",
+    "project_path" : "DESCRIPTION",
+    "properties" : {
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "type" : "dcf"
+}
