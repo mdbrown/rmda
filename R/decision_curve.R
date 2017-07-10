@@ -5,6 +5,7 @@
 #' @param formula an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm. The outcome must be a binary variable that equals '1' for cases and '0' for controls.
 #' @param data data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.
 #' @param family a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.
+#' @param policy Either "opt-in" (default) or "opt-out", describing the type of policy for which to report the net benefit. An policy is "opt-in" (default) when the standard of care is to treat no-one, and the model is used to recommend high risk patients to 'opt-in' for a treatment. Alternatively, an "opt-out" policy is a policy for which the standard of care is to treat everyone in the population and the model is used to discover low risk patients to 'opt-out' of treatment.
 #' @param fitted.risk logical (default FALSE) indicating whether the predictor provided are estimated risks from an already established model. If set to TRUE, no model fitting will be done and all estimates will be conditional on the risks provided.  Risks must fall between 0 and 1.
 #' @param thresholds Numeric vector of high risk thresholds to use when plotting and calculating net benefit values.
 #' @param confidence.intervals Numeric (default 0.95 for 95\% confidence bands) level of bootstrap confidence intervals to plot. Set as NA or 'none' to remove confidence intervals. See details for more information.
@@ -63,6 +64,7 @@
 decision_curve <- function(formula,
                           data,
                           family = binomial(link = "logit"),
+                          policy = c("opt-in", "opt-out"),
                           fitted.risk = FALSE,
                           thresholds = seq(0, 1, by = .01),
                           confidence.intervals = 0.95,
@@ -76,10 +78,14 @@ decision_curve <- function(formula,
   stopifnot(class(formula) == "formula")  #check formula
   stopifnot(is.data.frame(data)) #check data
   stopifnot(is.logical(fitted.risk))
+
   stopifnot(is.numeric(thresholds))
   stopifnot(all(thresholds >= 0)); stopifnot(all(thresholds <= 1));
   if(is.numeric(confidence.intervals)) stopifnot(confidence.intervals > 0 & confidence.intervals < 1)
   stopifnot(is.numeric(bootstraps))
+  policy <- match.arg(policy)
+  opt.in = policy == "opt-in"
+
   study.design <- match.arg(study.design)
 
   if(!missing(population.prevalence)) {
@@ -155,10 +161,14 @@ decision_curve <- function(formula,
 
   n.out <- length(predictors)*length(thresholds)
   dc.data <- data.frame("thresholds" = numeric(n.out),
-                    "FPR" = numeric(n.out),"TPR" = numeric(n.out),
+                    "FPR" = numeric(n.out), "FNR" = numeric(n.out),
+                    "TPR" = numeric(n.out),"TNR" = numeric(n.out),
                     "NB" = numeric(n.out), "sNB" = numeric(n.out),
-                    "rho" = numeric(n.out),"prob.high.risk" = numeric(n.out),
+                    "rho" = numeric(n.out),
+                    "prob.high.risk" = numeric(n.out),
+                    "prob.low.risk" = numeric(n.out),
                     "DP" = numeric(n.out),
+                    "nonDP" = numeric(n.out),
                     "model"= numeric(n.out))
 
 
@@ -201,7 +211,8 @@ decision_curve <- function(formula,
                               family = family,
                               data = data,
                               formula.ind = formula.ind[i],
-                              casecontrol.rho = population.prevalence)
+                              casecontrol.rho = population.prevalence,
+                              opt.in = opt.in)
 
     tmpNBdata$model <- predictor.names[[i]]
 
@@ -220,7 +231,8 @@ decision_curve <- function(formula,
                    family = family,
                    data = data[x,],
                    formula.ind = formula.ind[i],
-                   casecontrol.rho = population.prevalence)})
+                   casecontrol.rho = population.prevalence,
+                   opt.in = opt.in)})
 
       alpha = 1- confidence.intervals
 
@@ -246,7 +258,7 @@ decision_curve <- function(formula,
   #no ci's but we need to fill in the data.frame anyway
   if(!is.numeric(confidence.intervals)){dc.data <- add.ci.columns(dc.data)}
 
-  dc.data$cost.benefit.ratio <- as.character(fractions(threshold_to_costbenefit(dc.data$thresholds)))
+  dc.data$cost.benefit.ratio <- as.character(fractions(threshold_to_costbenefit(dc.data$thresholds, policy)))
   #find indices without a fraction and make them "xx/1"
   add.dash1 <-  which(!is.element(1:nrow(dc.data), grep("/", dc.data$cost.benefit.ratio)))
   dc.data$cost.benefit.ratio[add.dash1] <- paste(dc.data$cost.benefit.ratio[add.dash1], "/1", sep = "")
@@ -257,6 +269,7 @@ decision_curve <- function(formula,
   #return list of elements
   out <- list("derived.data"  = dc.data,
               "confidence.intervals" = confidence.intervals,
+              "policy" = policy,
               "call" = call)
   class(out) = "decision_curve"
   invisible(out)

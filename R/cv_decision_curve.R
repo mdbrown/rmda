@@ -45,7 +45,8 @@ cv_decision_curve <- function(formula,
                            thresholds = seq(0, 1, by = .01),
                            folds = 5,
                            study.design = c("cohort", "case-control"),
-                           population.prevalence){
+                           population.prevalence,
+                           policy = c("opt-in", "opt-out")){
   call <- match.call()
 
   stopifnot(is.numeric(folds))
@@ -55,7 +56,7 @@ cv_decision_curve <- function(formula,
   if(any( names.check <- !is.element(all.vars(formula), names(data)))) stop(paste("variable(s)", paste( all.vars(formula)[names.check], collapse = ", ") , "not found in 'data'"))
 
   study.design <- match.arg(study.design)
-
+  policy = match.arg(policy)
   #throw out missing data
   data <- data[,all.vars(formula)]
   #complete case indicator
@@ -89,8 +90,10 @@ cv_decision_curve <- function(formula,
                         thresholds = thresholds,
                         confidence.intervals = "none",
                         study.design = study.design,
-                        population.prevalence = population.prevalence)$derived.data
-  out$derived.data[, 2:8] <- 0
+                        population.prevalence = population.prevalence,
+                        policy =policy)$derived.data
+
+  out$derived.data[, 2:10] <- 0
 
   for(kk in 1:folds){
 
@@ -117,7 +120,7 @@ cv_decision_curve <- function(formula,
     #add measures for each fold to the first 8 columns, bc these are the
     #the only numeric estimates.
     #we divide by number of folds later
-    out$derived.data[,2:8] <- out$derived.data[,2:8] +
+    out$derived.data[,2:10] <- out$derived.data[,2:10] +
                              decision_curve(formula = outcome~risk.hat,
                              data = dat.cv,
                              family = family,
@@ -125,15 +128,17 @@ cv_decision_curve <- function(formula,
                              thresholds = thresholds,
                              confidence.intervals = "none",
                              study.design = study.design,
-                             population.prevalence = population.prevalence)$derived.data[,2:8]
+                             population.prevalence = population.prevalence,
+                             policy = policy)$derived.data[,2:10]
   }
   #take the mean across folds as estimates
-  out$derived.data[,2:8] <- out$derived.data[,2:8]/folds
+  out$derived.data[,2:10] <- out$derived.data[,2:10]/folds
 
 
   #return list of elements
   out$call <- call
   out$folds <- folds
+  out$policy = policy
   out$confidence.intervals <- 'none'
 
   class(out) = "decision_curve"

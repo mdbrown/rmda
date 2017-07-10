@@ -1,7 +1,7 @@
 
 
 #calculate net benefit for a fitted risk or by fitting a risk model if formula is specified
-calculate.nb <- function(y, d, rH, formula, data, family, formula.ind, casecontrol.rho){
+calculate.nb <- function(y, d, rH, formula, data, family, formula.ind, casecontrol.rho, opt.in){
   #predictor y,  estimated risk
   #disease indicator d
   #vector of high risk thresholds rH
@@ -25,6 +25,13 @@ calculate.nb <- function(y, d, rH, formula, data, family, formula.ind, casecontr
 
   N = length(y)
 
+
+  #tnf Pr(risk(X) =< rL | D = 0)
+  tnf = sum.I(rH, ">=", y[d==0])/sum(d ==0)
+
+  #fnf Pr(risk(X) <= rL | D = 1)
+  fnf = sum.I(rH, ">=", y[d==1])/sum(d ==1)
+
   #denominator for tpf
   tpf.den <- sum(d ==1)
 
@@ -46,19 +53,30 @@ if(is.null(casecontrol.rho)){
 
 
   #net benefit
-  nb = tpf*rho - (rH/(1-rH))*(1-rho)*fpf
+  if(opt.in){
+   nb = tpf*rho - (rH/(1-rH))*(1-rho)*fpf
+   #standardized net benefit
+   snb = nb/rho
+  }else{
+    nb = tnf*(1-rho) - fnf*rho*((1-rH)/rH)#tpf*rho - (rH/(1-rH))*(1-rho)*fpf - (rho - (rH/(1-rH))*(1-rho)) #check other formulation (in terms of tnr/fnr) to make sure the estimators match.
+    #standardized net benefit
+    snb = nb/(1-rho)
+    }
 
-  #standardized net benefit
-  snb = nb/rho
 
   #detection probability (for impact plots)
   dp <- tpf*rho
+  non.dp <- (1-fpf)*(1-rho)
 
   out  = data.frame("threshold" = rH,
-                    "FPR" = fpf , "TPR" = tpf,
+                    "FPR" = fpf , "FNR" = fnf,
+                    "TPR" = tpf, "TNR" = tnf,
                     "NB" = nb, "sNB" = snb,
-                    "rho" = rho, "prob.high.risk" = prob.high.risk,
-                    "DP" = dp)
+                    "rho" = rho,
+                    "prob.high.risk" = prob.high.risk,
+                    "prob.low.risk"  = 1-prob.high.risk,
+                    "DP" = dp,
+                    "nonDP" = non.dp)
 
  # AUC   = sum(sort(tpf, decreasing = FALSE)*(sort(fpf, decreasing = FALSE)-c(sort(fpf, decreasing = FALSE)[-1],0)))
 
@@ -71,12 +89,16 @@ add.ci.columns <- function(x){
   n.out = nrow(x)
 
   x$FPR_lower <- NA; x$FPR_upper <- NA
+  x$FNR_lower <- NA; x$FNR_upper <- NA
   x$TPR_lower <-NA; x$TPR_upper <- NA
+  x$TNR_lower <-NA; x$TNR_upper <- NA
   x$NB_lower <-NA; x$NB_upper <- NA
   x$sNB_lower <-NA; x$sNB_upper <- NA
   x$rho_lower <- NA; x$rho_upper <- NA
   x$prob.high.risk_lower = NA; x$prob.high.risk_upper =NA
+  x$prob.low.risk_lower = NA; x$prob.low.risk_upper = NA
   x$DP_lower = NA; x$DP_upper =NA
+  x$nonDP_lower = NA; x$nonDP_upper = NA
   x
 }
 
@@ -110,10 +132,22 @@ sum.I<-function(yy,FUN,Yi,Vi=NULL){
 }
 
 
-costbenefit_to_threshold <- function(CB){
-  CB/(1+CB)
+costbenefit_to_threshold <- function(CB, policy){
+
+  if(policy == "opt-in"){
+      out <- CB/(1+CB)
+  }else{
+    out <- 1/(1+CB)
+  }
+out
 }
 
-threshold_to_costbenefit <- function(rh){
-  rh/(1-rh)
+threshold_to_costbenefit <- function(rh, policy){
+
+  if(policy == "opt-in"){
+    out <-  rh/(1-rh)
+  }else{
+    out <- (1-rh)/rh
+  }
+  out
 }

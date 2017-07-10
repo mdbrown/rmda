@@ -1,16 +1,16 @@
 ---
-title: "DecisionCurve Tutorial (v.1.1)"
+title: "DecisionCurve Tutorial (v.1.4)"
 author: "Marshall Brown"
-date: "January 13, 2016"
+date: "July 10, 2017"
 output: 
   html_document: 
     theme: cerulean
     toc: yes
 ---
 
-Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of a binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available.
+Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of an adverse binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' An alternative formulation of the net benefit, where a model is used to classify observations as 'low risk' is also provided in version 1.4.
 
-Confidence intervals calculated using the bootstrap can be displayed and a wrapper function to calculate cross-validated curves using k-fold cross-validation is also provided. 
+Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available. Confidence intervals calculated using the bootstrap can be displayed and a wrapper function to calculate cross-validated curves using k-fold cross-validation is also provided. 
 
 Key functions are: 
 
@@ -37,7 +37,7 @@ You may also download the current version of the package here:
 navigate to the source package and use 
 
 ```{r, eval = FALSE}
-install.packages("../DecisionCurve_1.1.tar.gz", repos = NULL, type = "source")
+install.packages("../DecisionCurve_1.4.tar.gz", repos = NULL, type = "source")
 ```
 
 or install the package directly from github using devtools. 
@@ -69,6 +69,7 @@ set.seed(123)
 baseline.model <- decision_curve(Cancer~Age + Female + Smokes, #fitting a logistic model
                                 data = dcaData, 
                                 study.design = "cohort", 
+                                policy = "opt-in",  #default 
                                 bootstraps = 50)
 
 #plot the curve
@@ -85,7 +86,7 @@ full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
 
 #since we want to plot more than one curve, we pass a list of 'DecisionCurve' objects to the plot
 plot_decision_curve( list(baseline.model, full.model), 
-                   curve.names = c("Baseline model", "Full model")) 
+                   curve.names = c("Baseline model", "Full model"), xlim = c(0, 1), legend.position = "bottomright") 
 
 #see all available options using 
 ?decision_curve
@@ -107,6 +108,42 @@ plot_roc_components(full.model,  xlim = c(0, 0.4),
 #plot the clinical impact 
 plot_clinical_impact(full.model, xlim = c(0, .4), 
                      col = c("black", "blue"))
+```
+
+## The net benefit for 'opt-out' vs. 'opt-in' policies 
+
+For many clinical contexts, a risk model is used in one of two ways. In the more common setting, the standard-of-care for a population is to assign a treatment to no one. Clinicians then use a model to categorize patients as 'high-risk', and have the potential to treat those patients with alternative care. This type of policy is referred to as an 'opt-in' policy. The net benefit for such a policy is defined in terms of the true and false positive rates, the outcome prevalence $\rho$, and the 'high-risk' threshold $r_H$: 
+
+$$ 
+NB^{(opt-in)}(r_H) = \rho TPR(r_H) - ({1-\rho})\Big(\frac{r_H}{1-r_H}\Big)FPR(r_H)
+$$
+
+Alternatively, one could imagine the standard-of-care to be to assign a treatment to an entire population. The use of a model in this setting would be to identify observations as 'low-risk', so that those patients may 'opt-out' of treatment. The net benefit for this type of policy is then defined in terms of the true and false negative rates, and the 'low-risk' threshold $r_L$: 
+
+$$ 
+NB^{(opt-out)}(r_H) = (1-\rho) TNR(r_L) - {\rho}\Big(\frac{1-r_L}{r_L}\Big)FNR(r_L)
+$$
+
+So far in the tutorial we have been calculating the net benefit curves using the default 'opt-in' policy. To calculate the 'opt-out' net benefit, we set `policy = 'opt-out'`: 
+
+```{r, message=FALSE}
+set.seed(123)
+opt.out.dc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
+              data = dcaData, 
+              bootstraps = 50, 
+              policy = 'opt-out')
+
+
+plot_decision_curve( opt.out.dc,  xlim = c(0, 1),
+                     curve.names = "model", legend = 'bottomright') 
+```
+
+The clinical impact plots are also influenced by the `policy` argument, where they show number low risk instead of number high risk.  
+
+```{r, message=FALSE}
+
+plot_clinical_impact( opt.out.dc, col = c("black", "blue"), legend = 'bottomright') 
+
 ```
 
 ## Tweaking the defaults 
@@ -187,6 +224,7 @@ plot_decision_curve( list(baseline.model, full.model),
 ```
 
 
+
 ## Providing fitted risks from a previously specified model
 
 If a risk model has already been specified, and so no model fitting is needed, the user can specify `fitted.risks=TRUE` and provide them in the formula. No model fitting will be done and bootstrap confidence intervals will be conditional on the fitted model. 
@@ -228,14 +266,14 @@ DecisionCurve also outputs all calculations and point estimates when assigned to
 ```{r, message=FALSE}
 full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
                             data = dcaData, 
-                            thresholds = seq(0, .4, by = .05),
-                            bootstraps = 25) 
+                            thresholds = seq(.01, .99, by = .05),
+                            bootstraps = 25, policy = "opt-out") 
 ```
 
 The best way to look at point estimates (w/ci's) is to use `summary`. 
 
 ```{r, message=FALSE}
-summary(full.model) #outputs standardized net benefit by default
+summary(full.model, measure = "NB") #outputs standardized net benefit by default
 ```
 
 you can also choose which measure to report, and how many decimal places to print. The options for the `measure` argument are 'TPR', 'FPR', 'sNB', and 'NB'. 
@@ -298,12 +336,13 @@ We provide a wrapper to perform k-fold cross-validation to obtain bias corrected
 full.model_cv <- cv_decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
                                     data = dcaData,
                                     folds = 5, 
-                                    thresholds = seq(0, .4, by = .01))
+                                    thresholds = seq(0, .4, by = .01), 
+                                   policy = "opt-out")
 
 full.model_apparent <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
                                 data = dcaData, 
                                 thresholds = seq(0, .4, by = .01),
-                                confidence.intervals = 'none')
+                                confidence.intervals = 'none', policy = "opt-out")
 
 
 plot_decision_curve( list(full.model_apparent, full.model_cv), 

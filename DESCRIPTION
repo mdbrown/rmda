@@ -1,8 +1,8 @@
 Package: DecisionCurve
 Type: Package
 Title: Calculate and Plot Decision Curves
-Version: 1.3
-Date: 2016-08-11
+Version: 1.4
+Date: 2017-07-10
 Author: Marshall Brown
 Maintainer: Marshall Brown <mdbrown@fredhutch.org>
 Description: Decision curves are a useful tool to evaluate the population impact

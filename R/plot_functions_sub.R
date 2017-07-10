@@ -29,7 +29,8 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
     if(!all(sapply(x, FUN = function(xx) class(xx) == "decision_curve")) ){
       stop("One or more elements of the list provided is not an object of class 'decision_curve' (output from the function 'decision_curve').")
     }
-
+    policy.vec <- sapply(x, FUN = function(x) x$policy)
+    if(length(unique(policy.vec))>1) stop("Comparing decision curves with different opt-in/opt-out policies is not valid.")
     if(is.na(confidence.intervals[1])){
 
       ci.list <- sapply(x, FUN = function(x) x$confidence.intervals)
@@ -109,7 +110,9 @@ plot_generic<- function(xx, predictors, value, plotNew,
                         lty.fpr = 2, lty.tpr = 1,
                         tpr.fpr.legend = FALSE,
                         impact.legend = FALSE,
-                        population.size = 1000, ...){
+                        impact.legend.2 = FALSE,
+                        population.size = 1000,
+                        policy = policy, ...){
 ## xx is output from get_DecisionCurve,
 ## others are directly from the function call
 
@@ -174,7 +177,7 @@ plot_generic<- function(xx, predictors, value, plotNew,
   }
 
   #the clinical impact plots are on a different scale
-  if(is.element(value, c("DP" , "prob.high.risk"))){
+  if(is.element(value, c("DP" ,"nonDP", "prob.high.risk", "prob.low.risk"))){
     #population.size
     ps <- population.size
   }else{
@@ -185,8 +188,8 @@ plot_generic<- function(xx, predictors, value, plotNew,
   for(i in 1:length(predictors)){
     #plot ci's if asked for
 
-    j <- ifelse(is.element(value, c("TPR", "prob.high.risk")), 1, i)
-    j <- ifelse(is.element(value, c("FPR", "DP")), 2, i)
+    j <- ifelse(is.element(value, c("TPR", "prob.high.risk", "prob.low.risk")), 1, i)
+    j <- ifelse(is.element(value, c("FPR", "DP", "nonDP")), 2, i)
     if(is.numeric(confidence.intervals)){
       #get rid of cases missing for that predictor; this sometimes
        #happens due to different thresholds for each predictor
@@ -229,7 +232,13 @@ plot_generic<- function(xx, predictors, value, plotNew,
       legend(legend.position,
              lty = c( 1, 2),
              col = col, bg  = "white",
-             lwd = lwd, legend = c("Number high risk", "Number high risk with outcome"))
+             lwd = lwd, legend = c("Number high risk", "Number high risk with event"))
+
+    }else if(impact.legend.2){
+      legend(legend.position,
+             lty = c( 1, 2),
+             col = col, bg  = "white",
+             lwd = lwd, legend = c("Number low risk", "Number low risk without event"))
 
     }
 
@@ -237,10 +246,12 @@ plot_generic<- function(xx, predictors, value, plotNew,
 
   #add cost benefit axis if wanted
   if(cost.benefit.axis){
+
     tmp <- Add_CostBenefit_Axis(xlim = xlim,
                                 cost.benefits = cost.benefits,
                                 n.cost.benefits = n.cost.benefits,
-                                line = 4)
+                                line = 4,
+                                policy = policy)
     mtext(xlab, 1, 2.2)
     mtext(cost.benefit.xlab, side = 1, 6.1)
   }else{

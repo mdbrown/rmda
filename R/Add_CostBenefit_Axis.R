@@ -17,16 +17,25 @@
 Add_CostBenefit_Axis <- function(xlim,
                                  cost.benefits,
                                  n.cost.benefits = 6,
-                                 line = 4, ...){
+                                 line = 4,
+                                 policy, ...){
 
   if(missing(cost.benefits)){
     #no cost.benefits are given, so we must choose them (wisely) from available defaults
     #listed here
+
+
     tmp <- c( 1/2, 1/3, 1/4, 2/3, 3/4, 1/5, 1/10, 2/5, 3/5, 4/5, 7/10, 9/10, 5/6, 1/15, 1/20,  1/25, 1/30, 1/40, 1/50, 1/60, 1/75, 1/80, 1/100)
     dd <-  data.frame( "name" = c("1:1", "1:2", "1:3", "1:4", "2:3", "3:4", "1:5", "1:10", "2:5", "3:5", "4:5", "7:10", "9:10", "5:6", "1:15", "1:20", "1:25", "1:30", "1:40", "1:50", "1:60", "1:75","1:80",  "1:100",
                                   "2:1", "3:1", "4:1", "3:2", "4:3", "5:1", "10:1", "5:2", "5:3", "5:4", "10:7", "10:9", "6:5", "15:1", "20:1", "25:1", "30:1", "40:1", "50:1",  "60:1","75:1", "80:1",  "100:1"),
                        "value" = c(1/1, tmp, 1/tmp))
-    dd$threshold <- dd$value/(1+dd$value)
+
+    if(policy == "opt-in"){
+      dd$threshold <- dd$value/(1+dd$value)
+    }else{
+      dd$threshold <- (1/(1+dd$value)) ##need to ask about this
+    }
+
     dd <- dd[order(dd$threshold),]
     threshold <- NULL
     dd.sub <- subset(dd, threshold >= min(xlim) & threshold <= max(xlim))
@@ -62,7 +71,11 @@ Add_CostBenefit_Axis <- function(xlim,
     B <- sapply(CB.split, function(x) as.numeric(x[2]))
 
     dd$value = C/B
-    dd$threshold <- dd$value/(1+dd$value)
+    if(policy == "opt-in"){
+      dd$threshold <- dd$value/(1+dd$value)
+    }else{
+      dd$threshold <- (1/(1+dd$value))
+    }
     dd <- dd[order(dd$threshold),]
     dd.sub <- subset(dd, threshold >= min(xlim) & threshold <= max(xlim))
     #check to make sure there are default choices within xlim

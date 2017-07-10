@@ -82,8 +82,8 @@ plot_decision_curve <- function(x, curve.names,
                                col,
                                lty, lwd = 2,
                                xlim, ylim,
-                               xlab = "Risk Threshold", ylab,
-                               cost.benefit.xlab = "Cost:Benefit Ratio",
+                               xlab, ylab,
+                               cost.benefit.xlab,
                                legend.position = c("topright", "right", "bottomright", "bottom", "bottomleft", "left", "topleft", "top", "none"),
                                ...){
 
@@ -116,14 +116,15 @@ plot_decision_curve <- function(x, curve.names,
   if(length(lwd) == length(predictors)) lwd = c(lwd, 1, 1)
 
   if(missing(ylab)) ylab <- ifelse(standardize, "Standardized Net Benefit", "Net Benefit")
-
+  policy = ifelse(class(x)=="decision_curve", x$policy, x[[1]]$policy)
+  if(missing(xlab)) xlab <- ifelse(policy  == 'opt-in', "High Risk Threshold", "Low Risk Threshold")
+  if(missing(cost.benefit.xlab)) cost.benefit.xlab <- ifelse(policy == "opt-in", "Opt-in Cost:Benefit Ratio", "Opt-out Cost:Benefit Ratio")
     if(missing(ylim)){
 
     if(standardize) ylim = c(-1, 1)
     else ylim = c(-0.05, 1.1*max(dc.data[["NB"]][is.finite(dc.data[["NB"]])]))
 
   }
-
   plot_generic(xx = dc.data,
                predictors = predictors,
                value = ifelse(standardize, "sNB", "NB"),
@@ -138,7 +139,9 @@ plot_decision_curve <- function(x, curve.names,
                col = col,
                lty = lty, lwd = lwd,
                xlim = xlim, ylim = ylim,
-               legend.position = legend.position, ...)
+               legend.position = legend.position,
+               policy = policy,
+               ...)
 
 }
 
@@ -236,6 +239,7 @@ plot_roc_components <- function(x,
                lty = lty.tpr, lwd = lwd,
                xlim = xlim, ylim = ylim,
                legend.position = "none",
+               policy = x$policy,
                ...)
 
   plot_generic(xx = dc.data,
@@ -256,6 +260,7 @@ plot_roc_components <- function(x,
                lty.fpr = lty.fpr,
                lty.tpr = lty.tpr,
                tpr.fpr.legend = TRUE,
+               policy = x$policy,
                ...)
 
 
@@ -306,7 +311,7 @@ plot_clinical_impact <- function(x,
                             lty = 1,
                             lwd = 2,
                             xlim, ylim,
-                            xlab = "Risk Threshold", ylab,
+                            xlab, ylab,
                             cost.benefit.xlab = "Cost:Benefit Ratio",
                             legend.position = c("topright", "right", "bottomright", "bottom", "bottomleft", "left", "topleft", "top", "none"),
                             ...){
@@ -336,13 +341,21 @@ plot_clinical_impact <- function(x,
   if(length(lwd) ==1) lwd <- rep(lwd, length(predictors))
   if(length(lwd) == length(predictors)) lwd = c(lwd, 1, 1)
 
-  if(missing(ylab)) ylab <-  paste("Number high risk (out of ", population.size,  ")", sep = "")
+  if(missing(ylab)) {
+    if(x$policy == "opt-in") {
+      ylab <-  paste("Number high risk (out of ", population.size,  ")", sep = "")
+    }else if(x$policy == "opt-out"){
+        ylab <- paste("Number low risk (out of ", population.size,  ")", sep = "")
+    }
+  }
+  if(missing(xlab)) xlab <- ifelse(x$policy == 'opt-in', "High Risk Threshold", "Low Risk Threshold")
+
 
   if(missing(ylim)) ylim = c(0, population.size*1.05)
 
   plot_generic(xx = dc.data,
                predictors = predictors,
-               value = "prob.high.risk",
+               value = ifelse(x$policy == "opt-in", "prob.high.risk", "prob.low.risk"),
                plotNew = TRUE,
                standardize = FALSE,
                confidence.intervals,
@@ -356,11 +369,12 @@ plot_clinical_impact <- function(x,
                xlim = xlim, ylim = ylim,
                legend.position = "none",
                population.size = population.size,
+               policy = x$policy,
                ...) #add my own legend
 
   plot_generic(xx = dc.data,
                predictors = predictors,
-               value = "DP",
+               value = ifelse(x$policy == "opt-in", "DP", "nonDP"),
                plotNew = FALSE,
                standardize = FALSE,
                confidence.intervals,
@@ -376,8 +390,10 @@ plot_clinical_impact <- function(x,
                lty.fpr = 0,
                lty.tpr = 0,
                tpr.fpr.legend = FALSE,
-               impact.legend = TRUE,
+               impact.legend = (x$policy == "opt-in"),
+               impact.legend.2 = (x$policy == "opt-out"),
                population.size = population.size,
+               policy = x$policy,
                ...)
 
 }
