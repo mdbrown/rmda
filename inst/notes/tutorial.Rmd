@@ -8,7 +8,7 @@ output:
     toc: yes
 ---
 
-Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of an adverse binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' An alternative formulation of the net benefit, where a model is used to classify observations as 'low risk' is also provided in version 1.4.
+Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of an adverse binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' An alternative formulation of the net benefit, where a model is instead used to classify observations as 'low risk' is provided in version 1.4.
 
 Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available. Confidence intervals calculated using the bootstrap can be displayed and a wrapper function to calculate cross-validated curves using k-fold cross-validation is also provided. 
 
@@ -110,33 +110,37 @@ plot_clinical_impact(full.model, xlim = c(0, .4),
                      col = c("black", "blue"))
 ```
 
-## The net benefit for 'opt-out' vs. 'opt-in' policies 
+## The net benefit of an 'opt-out' vs. 'opt-in' policy 
 
-For many clinical contexts, a risk model is used in one of two ways. In the more common setting, the standard-of-care for a population is to assign a treatment to no one. Clinicians then use a model to categorize patients as 'high-risk', and have the potential to treat those patients with alternative care. This type of policy is referred to as an 'opt-in' policy. The net benefit for such a policy is defined in terms of the true and false positive rates, the outcome prevalence $\rho$, and the 'high-risk' threshold $r_H$: 
+For many clinical contexts, a risk model is used in one of two ways. In the first setting, the standard-of-care for a population is to assign a particular 'treatment' to no one. Clinicians then use a model to categorize patients as 'high-risk', with the intent to treat those patients with more intensive or alternative treatment. We refer to this use of a model as an 'opt-in' policy. The relative costs and benefits of such a policy are implicitly specified in terms of the 'cost' of treating an individual without the event (a control) compared to the 'benefit' of treating an observation with the event (a case). 
+
+The net benefit for an 'opt-in' policy is defined in terms of the true and false positive rates, the outcome prevalence $\rho$, and the 'high-risk' threshold $r_H$: 
 
 $$ 
 NB^{(opt-in)}(r_H) = \rho TPR(r_H) - ({1-\rho})\Big(\frac{r_H}{1-r_H}\Big)FPR(r_H)
 $$
+Alternatively, one could imagine a context where the standard-of-care is to assign a treatment to an entire population. The use of a model in this setting would be to identify observations as 'low-risk', so that those patients may 'opt-out' of treatment. For this formulation, the relative costs and benefits are (implicitly) specified as the 'cost' of **not** treating a case, and the benefit of **not** treating a control. 
 
-Alternatively, one could imagine the standard-of-care to be to assign a treatment to an entire population. The use of a model in this setting would be to identify observations as 'low-risk', so that those patients may 'opt-out' of treatment. The net benefit for this type of policy is then defined in terms of the true and false negative rates, and the 'low-risk' threshold $r_L$: 
+The net benefit for this type of 'opt-out' policy is defined in terms of the true and false negative rates, and the 'low-risk' threshold $r_L$: 
 
 $$ 
 NB^{(opt-out)}(r_H) = (1-\rho) TNR(r_L) - {\rho}\Big(\frac{1-r_L}{r_L}\Big)FNR(r_L)
 $$
 
-So far in the tutorial we have been calculating the net benefit curves using the default 'opt-in' policy. To calculate the 'opt-out' net benefit, we set `policy = 'opt-out'`: 
+So far in the tutorial we have been calculating the net benefit curves using the default `policy = 'opt-in'` setting. To calculate the net benefit for an 'opt-out' policy, we set  `policy = 'opt-out'` when using the `decision_curve` function. 
 
 ```{r, message=FALSE}
 set.seed(123)
 opt.out.dc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
               data = dcaData, 
               bootstraps = 50, 
-              policy = 'opt-out')
+              policy = 'opt-out') #set policy = 'opt-out' (default is 'opt-in')
 
 
 plot_decision_curve( opt.out.dc,  xlim = c(0, 1),
                      curve.names = "model", legend = 'bottomright') 
 ```
+
 
 The clinical impact plots are also influenced by the `policy` argument, where they show number low risk instead of number high risk.  
 
@@ -145,6 +149,8 @@ The clinical impact plots are also influenced by the `policy` argument, where th
 plot_clinical_impact( opt.out.dc, col = c("black", "blue"), legend = 'bottomright') 
 
 ```
+
+
 
 ## Tweaking the defaults 
 
