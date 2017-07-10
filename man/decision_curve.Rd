@@ -5,9 +5,10 @@
 \title{Calculate decision curves}
 \usage{
 decision_curve(formula, data, family = binomial(link = "logit"),
-  fitted.risk = FALSE, thresholds = seq(0, 1, by = 0.01),
-  confidence.intervals = 0.95, bootstraps = 500,
-  study.design = c("cohort", "case-control"), population.prevalence)
+  policy = c("opt-in", "opt-out"), fitted.risk = FALSE,
+  thresholds = seq(0, 1, by = 0.01), confidence.intervals = 0.95,
+  bootstraps = 500, study.design = c("cohort", "case-control"),
+  population.prevalence)
 }
 \arguments{
 \item{formula}{an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm. The outcome must be a binary variable that equals '1' for cases and '0' for controls.}
@@ -15,6 +16,8 @@ decision_curve(formula, data, family = binomial(link = "logit"),
 \item{data}{data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.}
 
 \item{family}{a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.}
+
+\item{policy}{Either "opt-in" (default) or "opt-out", describing the type of policy for which to report the net benefit. An policy is "opt-in" (default) when the standard of care is to treat no-one, and the model is used to recommend high risk patients to 'opt-in' for a treatment. Alternatively, an "opt-out" policy is a policy for which the standard of care is to treat everyone in the population and the model is used to discover low risk patients to 'opt-out' of treatment.}
 
 \item{fitted.risk}{logical (default FALSE) indicating whether the predictor provided are estimated risks from an already established model. If set to TRUE, no model fitting will be done and all estimates will be conditional on the risks provided.  Risks must fall between 0 and 1.}
 
@@ -80,4 +83,3 @@ full.model_cc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2
 \seealso{
 \code{\link{summary.decision_curve}}, \code{\link{cv_decision_curve}}, \code{\link{Add_CostBenefit_Axis}}
 }
-

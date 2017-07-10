@@ -17,4 +17,11 @@ Functions in this package include:
  \code{\link{plot_roc_components}}, and
  \code{\link{Add_CostBenefit_Axis}}.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{http://mdbrown.github.io/DecisionCurve/}
+  \item \url{https://github.com/mdbrown/DecisionCurve}
+}
 
+}

@@ -22,4 +22,3 @@ marker values and cancer outcome. The prevalence of cancer
 in the population that this data is sampled from is approximately 0.11.
 }
 \keyword{datasets}
-

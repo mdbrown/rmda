@@ -5,7 +5,7 @@
 \title{Displays a useful description of a decision_curve object}
 \usage{
 \method{summary}{decision_curve}(object, ..., measure = c("sNB", "NB", "TPR",
-  "FPR"), nround = 3)
+  "FPR", "TNR", "FNR"), nround = 3)
 }
 \arguments{
 \item{object}{decision_curve object to summarise}
@@ -35,4 +35,3 @@ summary(full.model) #outputs standardized net benefit by default
 summary(full.model, nround = 2, measure = "TPR")
 
 }
-

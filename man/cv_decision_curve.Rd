@@ -6,7 +6,7 @@
 \usage{
 cv_decision_curve(formula, data, family = binomial(link = "logit"),
   thresholds = seq(0, 1, by = 0.01), folds = 5, study.design = c("cohort",
-  "case-control"), population.prevalence)
+  "case-control"), population.prevalence, policy = c("opt-in", "opt-out"))
 }
 \arguments{
 \item{formula}{an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm. The outcome must be a binary variable that equals '1' for cases and '0' for controls.}
@@ -57,4 +57,3 @@ plot_decision_curve( list(full.model_apparent, full.model_cv),
 \seealso{
 \code{\link{summary.decision_curve}}, \code{\link{decision_curve}},  \code{\link{Add_CostBenefit_Axis}}
 }
-

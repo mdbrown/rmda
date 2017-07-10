@@ -6,10 +6,9 @@
 \usage{
 plot_decision_curve(x, curve.names, cost.benefit.axis = TRUE,
   n.cost.benefits = 6, cost.benefits, standardize = TRUE,
-  confidence.intervals, col, lty, lwd = 2, xlim, ylim,
-  xlab = "Risk Threshold", ylab, cost.benefit.xlab = "Cost:Benefit Ratio",
-  legend.position = c("topright", "right", "bottomright", "bottom",
-  "bottomleft", "left", "topleft", "top", "none"), ...)
+  confidence.intervals, col, lty, lwd = 2, xlim, ylim, xlab, ylab,
+  cost.benefit.xlab, legend.position = c("topright", "right", "bottomright",
+  "bottom", "bottomleft", "left", "topleft", "top", "none"), ...)
 }
 \arguments{
 \item{x}{'decision_curve' object to plot or a list of 'decision_curve' objects. Assumes output from function 'decision_curve'}
@@ -105,4 +104,3 @@ plot_decision_curve( list(baseline.model, full.model),
 
 
 }
-

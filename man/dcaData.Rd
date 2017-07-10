@@ -21,4 +21,3 @@ Simulated cohort data containing demographic variables,
 marker values and cancer outcome.
 }
 \keyword{datasets}
-
