@@ -1,5 +1,10 @@
+DecisionCurve 1.4
+========================
+* Version 1.4 of the package provides an alternative framing of the decision problem for situations where treatment is the standard-of-care and a risk model might be used in order for low-risk patients (i.e., patients below some risk threshold) to opt out of treatment. This is implemented in the package with the addition of the 'policy' argument to function decision_curve.
+
+
 DecisionCurve 1.3
 ========================
  * fixed bug in the inputs for createFolds for cv_decision_curve.
- 
+
 * allowed for multiple curves to be plotted together when one curve has CI’s and the other doesn’t

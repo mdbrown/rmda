@@ -17,7 +17,7 @@ decision_curve(formula, data, family = binomial(link = "logit"),
 
 \item{family}{a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.}
 
-\item{policy}{Either "opt-in" (default) or "opt-out", describing the type of policy for which to report the net benefit. An policy is "opt-in" (default) when the standard of care is to treat no-one, and the model is used to recommend high risk patients to 'opt-in' for a treatment. Alternatively, an "opt-out" policy is a policy for which the standard of care is to treat everyone in the population and the model is used to discover low risk patients to 'opt-out' of treatment.}
+\item{policy}{Either"opt-in" (default) or "opt-out", describing the type of policy for which to report the net benefit. A policy is "opt-in" when the standard-of-care for a population is to assign a particular ‘treatment’ to no one. Clinicians then use a risk model to categorize patients as ‘high-risk’, with the recommendation to treat high-risk patients with some intervention. Alternatively, an 'opt-out' policy is applicable to contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are ‘low-risk’ and recommend that those patients ‘opt-out’ of treatment.}
 
 \item{fitted.risk}{logical (default FALSE) indicating whether the predictor provided are estimated risks from an already established model. If set to TRUE, no model fitting will be done and all estimates will be conditional on the risks provided.  Risks must fall between 0 and 1.}
 
