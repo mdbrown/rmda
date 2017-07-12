@@ -27,10 +27,10 @@ calculate.nb <- function(y, d, rH, formula, data, family, formula.ind, casecontr
 
 
   #tnf Pr(risk(X) =< rL | D = 0)
-  tnf = sum.I(rH, ">=", y[d==0])/sum(d ==0)
+  tnf = sum.I(rH, ">", y[d==0])/sum(d ==0)
 
   #fnf Pr(risk(X) <= rL | D = 1)
-  fnf = sum.I(rH, ">=", y[d==1])/sum(d ==1)
+  fnf = sum.I(rH, ">", y[d==1])/sum(d ==1)
 
   #denominator for tpf
   tpf.den <- sum(d ==1)

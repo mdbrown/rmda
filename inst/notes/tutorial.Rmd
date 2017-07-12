@@ -2,13 +2,15 @@
 title: "DecisionCurve Tutorial (v.1.4)"
 author: "Marshall Brown"
 date: "July 10, 2017"
-output: 
+output:
   html_document: 
     theme: cerulean
-    toc: yes
+    toc: true
+    toc_float: true
+  word_document: default
 ---
 
-Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of an adverse binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' An alternative formulation of the net benefit, where a model is instead used to classify observations as 'low risk' is provided in version 1.4.
+Decision curves are a useful tool to evaluate the population impact of adopting a risk prediction instrument into clinical practice. Given one or more instruments (risk models) that predict the probability of an adverse binary outcome, this package calculates and plots decision curves, which display estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' Version 1.4 of the package provides an alternative framing of the decision problem for situations where treatment is the standard-of-care and a risk model might be used in order for low-risk patients (i.e., patients below some risk threshold) to opt out of treatment.
 
 Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available. Confidence intervals calculated using the bootstrap can be displayed and a wrapper function to calculate cross-validated curves using k-fold cross-validation is also provided. 
 
@@ -112,28 +114,31 @@ plot_clinical_impact(full.model, xlim = c(0, .4),
 
 ## The net benefit of an 'opt-out' vs. 'opt-in' policy 
 
-For many clinical contexts, a risk model is used in one of two ways. In the first setting, the standard-of-care for a population is to assign a particular 'treatment' to no one. Clinicians then use a model to categorize patients as 'high-risk', with the intent to treat those patients with more intensive or alternative treatment. We refer to this use of a model as an 'opt-in' policy. The relative costs and benefits of such a policy are implicitly specified in terms of the 'cost' of treating an individual without the event (a control) compared to the 'benefit' of treating an observation with the event (a case). 
+For many clinical contexts, a risk model is used in one of two ways. In the first setting, the standard-of-care for a population is to assign a particular 'treatment' to no one. Clinicians then use a risk model to categorize patients as 'high-risk', with the recommendation to treat high-risk patients with some intervention. We refer to this use of a risk model as an 'opt-in' policy. The relative costs and benefits of such a policy are implicitly specified in terms of the 'cost' of treating an individual without the event (a control) compared to the 'benefit' of treating an observation with the event (a case).
 
-The net benefit for an 'opt-in' policy is defined in terms of the true and false positive rates, the outcome prevalence $\rho$, and the 'high-risk' threshold $r_H$: 
+The net benefit for an 'opt-in' policy is most naturally defined in terms of the true and false positive rates, the outcome prevalence $\rho$, and the 'high-risk' threshold $r_H$. 
+ 
 
 $$ 
 NB^{(opt-in)}(r_H) = \rho TPR(r_H) - ({1-\rho})\Big(\frac{r_H}{1-r_H}\Big)FPR(r_H)
 $$
-Alternatively, one could imagine a context where the standard-of-care is to assign a treatment to an entire population. The use of a model in this setting would be to identify observations as 'low-risk', so that those patients may 'opt-out' of treatment. For this formulation, the relative costs and benefits are (implicitly) specified as the 'cost' of **not** treating a case, and the benefit of **not** treating a control. 
+Alternatively, there are contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are 'low-risk' and recommend that those patients 'opt-out' of treatment. For this formulation, the relative costs and benefits are (implicitly) specified as the 'cost' of **not** treating a case, and the benefit of **not** treating a control.
 
-The net benefit for this type of 'opt-out' policy is defined in terms of the true and false negative rates, and the 'low-risk' threshold $r_L$: 
+The net benefit for this type of 'opt-out' policy is most naturally defined in terms of the true and false negative rates, the outcome prevalence \rho, and the 'low-risk' threshold $r_L$: 
+
 
 $$ 
 NB^{(opt-out)}(r_H) = (1-\rho) TNR(r_L) - {\rho}\Big(\frac{1-r_L}{r_L}\Big)FNR(r_L)
 $$
 
-So far in the tutorial we have been calculating the net benefit curves using the default `policy = 'opt-in'` setting. To calculate the net benefit for an 'opt-out' policy, we set  `policy = 'opt-out'` when using the `decision_curve` function. 
+So far in this tutorial we have calculated the net benefit curves using the default `policy = 'opt-in'` setting. To calculate the net benefit for an 'opt-out' policy, we set  `policy = 'opt-out'` when using the `decision_curve` function. 
 
 ```{r, message=FALSE}
 set.seed(123)
 opt.out.dc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
               data = dcaData, 
-              bootstraps = 50, 
+              bootstraps = 10, 
+              confidence.intervals = 'none',
               policy = 'opt-out') #set policy = 'opt-out' (default is 'opt-in')
 
 
@@ -142,7 +147,7 @@ plot_decision_curve( opt.out.dc,  xlim = c(0, 1),
 ```
 
 
-The clinical impact plots are also influenced by the `policy` argument, where they show number low risk instead of number high risk.  
+The clinical impact plots are also influenced by the `policy` argument.  When we set policy = 'opt-out'  the clinical impact plot displays the number low risk instead of the number high risk.  
 
 ```{r, message=FALSE}
 
