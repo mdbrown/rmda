@@ -137,8 +137,7 @@ So far in this tutorial we have calculated the net benefit curves using the defa
 set.seed(123)
 opt.out.dc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
               data = dcaData, 
-              bootstraps = 10, 
-              confidence.intervals = 'none',
+              bootstraps = 50, 
               policy = 'opt-out') #set policy = 'opt-out' (default is 'opt-in')
 
 
