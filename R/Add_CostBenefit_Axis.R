@@ -5,6 +5,7 @@
 #' @param cost.benefits Character vector of the form c("c1:b1", "c2:b2", ..., "cn:bn") with integers ci, bi corresponding to specific cost:benefit ratios to print.
 #' @param n.cost.benefits number of cost:benefit ratios to print if cost.benefit.axis = TRUE (default n.cost.benefit = 6).
 #' @param line x-axis line to print the axis (default is 4).
+#' @param policy Either "opt-in" (default) or "opt-out", describing the type of policy for which to report the net benefit. A policy is "opt-in" when the standard-of-care for a population is to assign a particular ‘treatment’ to no one. Clinicians then use a risk model to categorize patients as ‘high-risk’, with the recommendation to treat high-risk patients with some intervention. Alternatively, an 'opt-out' policy is applicable to contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are ‘low-risk’ and recommend that those patients ‘opt-out’ of treatment.
 #' @param ... other options sent to `axis`.
 #'
 #' @return List with components threshold, value and name.

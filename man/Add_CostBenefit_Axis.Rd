@@ -16,6 +16,8 @@ Add_CostBenefit_Axis(xlim, cost.benefits, n.cost.benefits = 6, line = 4,
 
 \item{line}{x-axis line to print the axis (default is 4).}
 
+\item{policy}{Either "opt-in" (default) or "opt-out", describing the type of policy for which to report the net benefit. A policy is "opt-in" when the standard-of-care for a population is to assign a particular ‘treatment’ to no one. Clinicians then use a risk model to categorize patients as ‘high-risk’, with the recommendation to treat high-risk patients with some intervention. Alternatively, an 'opt-out' policy is applicable to contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are ‘low-risk’ and recommend that those patients ‘opt-out’ of treatment.}
+
 \item{...}{other options sent to `axis`.}
 }
 \value{
