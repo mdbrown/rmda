@@ -361,5 +361,7 @@ plot_decision_curve( list(full.model_apparent, full.model_cv),
                    lty = c(2,1), 
                    lwd = c(3,2, 2, 1), 
                    legend.position = "bottomright") 
+
+plot_clinical_impact(full.model_cv, legend.position = "bottomright") 
 ```
 

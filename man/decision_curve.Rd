@@ -15,9 +15,9 @@ decision_curve(formula, data, family = binomial(link = "logit"),
 
 \item{data}{data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.}
 
-\item{family}{a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.}
+\item{family}{a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = 'logit') for logistic regression.}
 
-\item{policy}{Either "opt-in" (default) or "opt-out", describing the type of policy for which to report the net benefit. A policy is "opt-in" when the standard-of-care for a population is to assign a particular ‘treatment’ to no one. Clinicians then use a risk model to categorize patients as ‘high-risk’, with the recommendation to treat high-risk patients with some intervention. Alternatively, an 'opt-out' policy is applicable to contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are ‘low-risk’ and recommend that those patients ‘opt-out’ of treatment.}
+\item{policy}{Either 'opt-in' (default) or 'opt-out', describing the type of policy for which to report the net benefit. A policy is 'opt-in' when the standard-of-care for a population is to assign a particular 'treatment' to no one. Clinicians then use a risk model to categorize patients as 'high-risk', with the recommendation to treat high-risk patients with some intervention. Alternatively, an 'opt-out' policy is applicable to contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are 'low-risk' and recommend that those patients 'opt-out' of treatment.}
 
 \item{fitted.risk}{logical (default FALSE) indicating whether the predictor provided are estimated risks from an already established model. If set to TRUE, no model fitting will be done and all estimates will be conditional on the risks provided.  Risks must fall between 0 and 1.}
 
@@ -54,7 +54,7 @@ data(dcaData)
 baseline.model <- decision_curve(Cancer~Age + Female + Smokes,
                                 data = dcaData,
                                 thresholds = seq(0, .4, by = .01),
-                                study.design = "cohort",
+                                study.design = 'cohort',
                                 bootstraps = 10) #number of bootstraps should be higher
 
 full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
@@ -75,13 +75,13 @@ full.model_cc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2
                                data = dcaData,
                                thresholds = seq(0, .4, by = .01),
                                bootstraps = 10,
-                               study.design = "case-control",
+                               study.design = 'case-control',
                                population.prevalence = population.rho)
 
 #estimate the net benefit for an 'opt-out' policy.
 nb.opt.out  <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
                             data = dcaData,
-                            policy = "opt-out",
+                            policy = 'opt-out',
                             thresholds = seq(0, .4, by = .01),
                             bootstraps = 10)
 

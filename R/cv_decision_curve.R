@@ -4,15 +4,15 @@
 #'
 #' @param formula an object of class 'formula' of the form outcome ~ predictors, giving the prediction model to be fitted using glm. The outcome must be a binary variable that equals '1' for cases and '0' for controls.
 #' @param data data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.
-#' @param family a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.
+#' @param family a description of the error distribution and link function to pass to 'glm" used for model fitting. Defaults to binomial(link = "logit") for logistic regression.
 #' @param thresholds Numeric vector of high risk thresholds to use when plotting and calculating net benefit values.
 #' @param folds Number of folds for k-fold cross-validation.
 #' @param study.design Either 'cohort' (default) or 'case-control' describing the study design used to obtain data. See details for more information.
 #' @param population.prevalence  Outcome prevalence rate in the population used to calculate decision curves when study.design = 'case-control'.
-#' @param policy Either "opt-in" (default) or "opt-out", describing the type of policy for which to report the net benefit. A policy is "opt-in" when the standard-of-care for a population is to assign a particular ‘treatment’ to no one. Clinicians then use a risk model to categorize patients as ‘high-risk’, with the recommendation to treat high-risk patients with some intervention. Alternatively, an 'opt-out' policy is applicable to contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are ‘low-risk’ and recommend that those patients ‘opt-out’ of treatment.
+#' @param policy Either 'opt-in' (default) or 'opt-out', describing the type of policy for which to report the net benefit. A policy is 'opt-in' when the standard-of-care for a population is to assign a particular 'treatment' to no one. Clinicians then use a risk model to categorize patients as 'high-risk', with the recommendation to treat high-risk patients with some intervention. Alternatively, an 'opt-out' policy is applicable to contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are 'low-risk' and recommend that those patients 'opt-out' of treatment.
 #' @return List with components
 #' \itemize{
-#'   \item derived.data: derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'prob.high.risk': percent of the population considered high risk. DP': detection probability = TPR*rho, 'model': name of prediction model or 'all' or 'none', and cost.benefit.ratio's.
+#'   \item derived.data: derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'prob.high.risk': percent of the population considered high risk. 'DP': detection probability = TPR*rho, 'model': name of prediction model or 'all' or 'none', and cost.benefit.ratio's.
 #'   \item folds: number of folds used for cross-validation.
 #'   \item call: matched function call.
 #' }
@@ -31,21 +31,21 @@
 #'                                      confidence.intervals = 'none')
 #'
 #'plot_decision_curve( list(full.model_apparent, full.model_cv),
-#'                     curve.names = c("Apparent curve", "Cross-validated curve"),
-#'                     col = c("red", "blue"),
+#'                     curve.names = c('Apparent curve', 'Cross-validated curve'),
+#'                     col = c('red', 'blue'),
 #'                     lty = c(2,1),
 #'                     lwd = c(3,2, 2, 1),
-#'                     legend.position = "bottomright")
+#'                     legend.position = 'bottomright')
 #'
 #' @importFrom caret createFolds
 #' @export
 
 cv_decision_curve <- function(formula,
                            data,
-                           family = binomial(link = "logit"),
+                           family = binomial(link = 'logit'),
                            thresholds = seq(0, 1, by = .01),
                            folds = 5,
-                           study.design = c("cohort", "case-control"),
+                           study.design = c('cohort', "case-control"),
                            population.prevalence,
                            policy = c("opt-in", "opt-out")){
   call <- match.call()
@@ -94,7 +94,7 @@ cv_decision_curve <- function(formula,
                         population.prevalence = population.prevalence,
                         policy =policy)$derived.data
 
-  out$derived.data[, 2:10] <- 0
+  out$derived.data[, 2:12] <- 0
 
   for(kk in 1:folds){
 
@@ -121,7 +121,7 @@ cv_decision_curve <- function(formula,
     #add measures for each fold to the first 8 columns, bc these are the
     #the only numeric estimates.
     #we divide by number of folds later
-    out$derived.data[,2:10] <- out$derived.data[,2:10] +
+    out$derived.data[,2:12] <- out$derived.data[,2:12] +
                              decision_curve(formula = outcome~risk.hat,
                              data = dat.cv,
                              family = family,
@@ -130,10 +130,11 @@ cv_decision_curve <- function(formula,
                              confidence.intervals = "none",
                              study.design = study.design,
                              population.prevalence = population.prevalence,
-                             policy = policy)$derived.data[,2:10]
+                             policy = policy)$derived.data[,2:12]
   }
   #take the mean across folds as estimates
-  out$derived.data[,2:10] <- out$derived.data[,2:10]/folds
+
+  out$derived.data[,2:12] <- out$derived.data[,2:12]/folds
 
 
   #return list of elements

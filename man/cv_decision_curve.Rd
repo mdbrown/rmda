@@ -13,7 +13,7 @@ cv_decision_curve(formula, data, family = binomial(link = "logit"),
 
 \item{data}{data.frame containing outcome and predictors. Missing data on any of the predictors will cause the entire observation to be removed.}
 
-\item{family}{a description of the error distribution and link function to pass to 'glm' used for model fitting. Defaults to binomial(link = "logit") for logistic regression.}
+\item{family}{a description of the error distribution and link function to pass to 'glm" used for model fitting. Defaults to binomial(link = "logit") for logistic regression.}
 
 \item{thresholds}{Numeric vector of high risk thresholds to use when plotting and calculating net benefit values.}
 
@@ -23,12 +23,12 @@ cv_decision_curve(formula, data, family = binomial(link = "logit"),
 
 \item{population.prevalence}{Outcome prevalence rate in the population used to calculate decision curves when study.design = 'case-control'.}
 
-\item{policy}{Either "opt-in" (default) or "opt-out", describing the type of policy for which to report the net benefit. A policy is "opt-in" when the standard-of-care for a population is to assign a particular ‘treatment’ to no one. Clinicians then use a risk model to categorize patients as ‘high-risk’, with the recommendation to treat high-risk patients with some intervention. Alternatively, an 'opt-out' policy is applicable to contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are ‘low-risk’ and recommend that those patients ‘opt-out’ of treatment.}
+\item{policy}{Either 'opt-in' (default) or 'opt-out', describing the type of policy for which to report the net benefit. A policy is 'opt-in' when the standard-of-care for a population is to assign a particular 'treatment' to no one. Clinicians then use a risk model to categorize patients as 'high-risk', with the recommendation to treat high-risk patients with some intervention. Alternatively, an 'opt-out' policy is applicable to contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are 'low-risk' and recommend that those patients 'opt-out' of treatment.}
 }
 \value{
 List with components
 \itemize{
-  \item derived.data: derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'prob.high.risk': percent of the population considered high risk. DP': detection probability = TPR*rho, 'model': name of prediction model or 'all' or 'none', and cost.benefit.ratio's.
+  \item derived.data: derived.data: A data frame in long form showing the following for each predictor and each 'threshold', 'FPR':false positive rate, 'TPR': true positive rate, 'NB': net benefit, 'sNB': standardized net benefit, 'rho': outcome prevalence, 'prob.high.risk': percent of the population considered high risk. 'DP': detection probability = TPR*rho, 'model': name of prediction model or 'all' or 'none', and cost.benefit.ratio's.
   \item folds: number of folds used for cross-validation.
   \item call: matched function call.
 }
@@ -49,11 +49,11 @@ full.model_apparent <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + M
                                      confidence.intervals = 'none')
 
 plot_decision_curve( list(full.model_apparent, full.model_cv),
-                    curve.names = c("Apparent curve", "Cross-validated curve"),
-                    col = c("red", "blue"),
+                    curve.names = c('Apparent curve', 'Cross-validated curve'),
+                    col = c('red', 'blue'),
                     lty = c(2,1),
                     lwd = c(3,2, 2, 1),
-                    legend.position = "bottomright")
+                    legend.position = 'bottomright')
 
 }
 \seealso{
