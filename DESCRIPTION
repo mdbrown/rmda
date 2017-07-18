@@ -1,11 +1,11 @@
-Package: DecisionCurve
+Package: NetBenefitCurve
 Type: Package
-Title: Calculate and Plot Decision Curves
+Title: Calculate and plot net benefit curves (also called decision curves)
 Version: 1.4
 Date: 2017-07-10
 Author: Marshall Brown
 Maintainer: Marshall Brown <mdbrown@fredhutch.org>
-Description: Decision curves are a useful tool to evaluate the population impact
+Description: Net benefit curves (also called decision curves) are a useful tool to evaluate the population impact
  of adopting a risk prediction instrument into clinical practice. Given one or more
  instruments (risk models) that predict the probability of a binary outcome, this
  package calculates and plots decision curves, which display estimates of the

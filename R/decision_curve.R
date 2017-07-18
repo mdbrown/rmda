@@ -1,4 +1,4 @@
-#' Calculate decision curves
+#' Calculate net benefit/decision curves
 #'
 #' This function calculates decision curves, which are estimates of the standardized net benefit by the probability threshold used to categorize observations as 'high risk.' Curves can be estimated using data from an observational cohort (default), or from case-control studies when an estimate of the population outcome prevalence is available. Confidence intervals calculated using the bootstrap are calculated as well. Once this function is called, use \code{plot_decision_curve} or \code{summary} to plot or view the curves, respectively.
 #'
