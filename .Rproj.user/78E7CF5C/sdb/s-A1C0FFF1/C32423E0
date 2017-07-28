@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#' rmda: Risk Model Decision Analysis\n#'\n#' The package `rmda` provides tools to evaluate the population impact of adopting a risk prediction instrument into clinical practice.  Given one or more instruments (risk models) that predict the probability of a binary outcome, we provide functions to calculate and display decision curves and other figures that help communicate the benefits and costs associated with using a risk model for decision making. \n#' \n#' Decision curves display estimates of the standardized net benefit over a range of probability thresholds used to categorize observations as 'high risk.' Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available.  Version 1.4 of the package provides an alternative framing of the decision problem for situations where treatment is the standard-of-care and a risk model might be used in order for low-risk patients (i.e., patients below some risk threshold) to opt out of treatment.\n#' \n#' Confidence intervals calculated using the bootstrap can be displayed and a wrapper function to calculate cross-validated curves using k-fold cross-validation is also provided. \n#'\n#' Functions in this package include:\n#'  \\code{\\link{decision_curve}}, \n#'  \\code{\\link{summary.decision_curve}},\n#'  \\code{\\link{plot_decision_curve}},\n#'  \\code{\\link{plot_clinical_impact}},\n#'  \\code{\\link{plot_roc_components}},\n#'  \\code{\\link{cv_decision_curve}} and\n#'  \\code{\\link{Add_CostBenefit_Axis}}.\n#'\n#'\n\"_PACKAGE\"\n#> [1] \"_PACKAGE\"\n",
+    "created" : 1501278212536.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "777059692",
+    "id" : "C32423E0",
+    "lastKnownWriteTime" : 1501278429,
+    "last_content_update" : 1501278429223,
+    "path" : "~/DecisionCurve-All/rmda/R/rmda.R",
+    "project_path" : "R/rmda.R",
+    "properties" : {
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

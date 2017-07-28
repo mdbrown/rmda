@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "\nrmda v1.4\n========================\n*Package has changed names to rmda (risk model data analysis).  \n\nv 1.4\n========================\n* Version 1.4 of the package provides an alternative framing of the decision problem for situations where treatment is the standard-of-care and a risk model might be used in order for low-risk patients (i.e., patients below some risk threshold) to opt out of treatment. This is implemented in the package with the addition of the 'policy' argument to function decision_curve.\n\n\nv 1.3\n========================\n * fixed bug in the inputs for createFolds for cv_decision_curve.\n\n* allowed for multiple curves to be plotted together when one curve has CI’s and the other doesn’t\n",
+    "created" : 1500398552652.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2002717687",
+    "id" : "16FE82A6",
+    "lastKnownWriteTime" : 1501278510,
+    "last_content_update" : 1501278510586,
+    "path" : "~/DecisionCurve-All/rmda/NEWS",
+    "project_path" : "NEWS",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "text"
+}

@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "# `rmda`: Risk Model Decision Analysis\n\nThe package `rmda` (risk model decision analysis) provides tools to evaluate the population impact of adopting a risk prediction instrument into clinical practice.  Given one or more instruments (risk models) that predict the probability of a binary outcome, we provide functions to calculate and display decision curves and other figures that help communicate the benefits and costs associated with using a risk model for clinical decision making. \n\nDecision curves display estimates of the standardized net benefit over a range of probability thresholds used to categorize observations as 'high risk.' Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available.  Version 1.4 of the package provides an alternative framing of the decision problem for situations where treatment is the standard-of-care and a risk model might be used in order for low-risk patients (i.e., patients below some risk threshold) to opt out of treatment.\n\nConfidence intervals calculated using the bootstrap can be displayed and a wrapper function to calculate cross-validated curves using k-fold cross-validation is also provided. \n\nKey functions are: \n\n- `decision_curve`: Estimate (standardized) net benefit curves with bootstrap confidence intervals. \n\n- `plot_decision_curve`: Plot a decision curve or multiple curves.\n\n- `plot_clinical_impact` and `plot_roc_components`: Alternative plots for the output of `decision_curve` showing measures of clinical impact or the components of the ROC curve (true/false positive rates) across a range of risk thresholds. See help files or tutorial for more info. \n\n- `cv_decision_curve`: Calculate k-fold cross-validated estimates of a decision curve and its components. \n\n## Installation\n\nThe easiest way to get the package is directly from CRAN:\n\n```r\ninstall.packages(\"rmda\")\n```\n\n\nor install the package directly from github using devtools. \n \n```r\n## install.packages(\"devtools\")\nlibrary(devtools)\ninstall_github(\"mdbrown/rmda\")\n```\nYou may also download the current version of the package here:\n\n[https://github.com/mdbrown/rmda/releases](https://github.com/mdbrown/rmda/releases)\n\nnavigate to the source package and use \n\n```r\ninstall.packages(\"../rmda_1.4.tar.gz\", \n                  repos = NULL, \n                  type = \"source\")\n```\n\n## Tutorial \n\nClick [here](http://mdbrown.github.io/rmda/) for a tutorial to get you started. \n",
+    "created" : 1500398730192.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3271836747",
+    "id" : "19990194",
+    "lastKnownWriteTime" : 1501278824,
+    "last_content_update" : 1501278824845,
+    "path" : "~/DecisionCurve-All/rmda/README.md",
+    "project_path" : "README.md",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "markdown"
+}
