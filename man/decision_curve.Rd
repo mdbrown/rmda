@@ -2,7 +2,7 @@
 % Please edit documentation in R/decision_curve.R
 \name{decision_curve}
 \alias{decision_curve}
-\title{Calculate decision curves}
+\title{Calculate net benefit/decision curves}
 \usage{
 decision_curve(formula, data, family = binomial(link = "logit"),
   policy = c("opt-in", "opt-out"), fitted.risk = FALSE,
