@@ -3,7 +3,7 @@ title: "Risk Model Decision Analysis"
 subtitle: "A tutorial for R package `rmda`"
 version: 1.4
 author: "Marshall Brown"
-date: "July 28, 2017"
+date: "Aug 1, 2017"
 output:
   html_document: 
     theme: cerulean
@@ -12,11 +12,11 @@ output:
   word_document: default
 ---
 
-The package `rmda` (risk model decision analysis) provides tools to evaluate the population impact of adopting a risk prediction instrument into clinical practice.  Given one or more instruments (risk models) that predict the probability of a binary outcome, we provide functions to calculate and display decision curves and other figures that help communicate the benefits and costs associated with using a risk model for clinical decision making. 
+The package `rmda` (risk model decision analysis) provides tools to evaluate the value of using a risk prediction instrument to decide treatment or intervention (versus no treatment or intervention).  Given one or more risk prediction instruments (risk models) that estimate the probability of a binary outcome, `rmda` provides functions to estimate and display decision curves and other figures that help assess the population impact of using a risk model for clinical decision making.   Here, “population” refers to the relevant patient population.
 
-Decision curves display estimates of the standardized net benefit over a range of probability thresholds used to categorize observations as 'high risk.' Curves can be estimated using data from an observational cohort, or from case-control studies when an estimate of the population outcome prevalence is available.  Version 1.4 of the package provides an alternative framing of the decision problem for situations where treatment is the standard-of-care and a risk model might be used in order for low-risk patients (i.e., patients below some risk threshold) to opt out of treatment.
+Decision curves display estimates of the (standardized) net benefit over a range of probability thresholds used to categorize observations as 'high risk.' The curves help evaluate a treatment policy that recommends treatment for patients who are estimated to be ‘high risk’ by comparing the population impact of a risk-based policy to “treat all” and “treat none” intervention policies.  Curves can be estimated using data from a prospective cohort.  In addition, `rmda` can estimate decision curves using data from a case-control study if an estimate of the population outcome prevalence is available.  Version 1.4 of the package provides an alternative framing of the decision problem for situations where treatment is the standard-of-care and a risk model might be used to recommend that low-risk patients (i.e., patients below some risk threshold) opt out of treatment.
 
-Confidence intervals calculated using the bootstrap can be displayed and a wrapper function to calculate cross-validated curves using k-fold cross-validation is also provided. 
+Confidence intervals calculated using the bootstrap can be computed and displayed. A wrapper function to calculate cross-validated curves using k-fold cross-validation is also provided. 
 
 Key functions are: 
 
@@ -28,23 +28,22 @@ Key functions are:
 
 - `cv_decision_curve`: Calculate k-fold cross-validated estimates of a decision curve and its components. 
 
-
 ## Install the package 
 
 The easiest way to get the package is directly from CRAN:
 
 ```{r, eval = FALSE}
-install.packages("DecisionCurve")
+install.packages("rmda")
 ```
 
 You may also download the current version of the package here:
 
-[https://github.com/mdbrown/DecisionCurve/releases](https://github.com/mdbrown/DecisionCurve/releases)
+[https://github.com/mdbrown/rmda/releases](https://github.com/mdbrown/rmda/releases)
 
 navigate to the source package and use 
 
 ```{r, eval = FALSE}
-install.packages("../DecisionCurve_1.4.tar.gz", repos = NULL, type = "source")
+install.packages("../rmda_1.4.tar.gz", repos = NULL, type = "source")
 ```
 
 or install the package directly from github using devtools. 
@@ -52,7 +51,7 @@ or install the package directly from github using devtools.
 ```{r, eval = FALSE}
 ## install.packages("devtools")
 library(devtools)
-install_github("mdbrown/DecisionCurve")
+install_github("mdbrown/rmda")
 ```
 
 ## Getting started 
@@ -60,7 +59,7 @@ install_github("mdbrown/DecisionCurve")
 Load the package and the provided simulated data set.  
 
 ```{r, message=FALSE, warning = FALSE}
-library(DecisionCurve)
+library(rmda)
 
 #load simulated data 
 data(dcaData)
@@ -72,7 +71,7 @@ First we use the function `decision_curve` to create a decision curve object for
 
 ```{r, message=FALSE, warning = FALSE}
 set.seed(123)
-#first use DecisionCurve with the default settings (set bootstraps = 50 here to reduce computation time). 
+#first use rmda with the default settings (set bootstraps = 50 here to reduce computation time). 
 baseline.model <- decision_curve(Cancer~Age + Female + Smokes, #fitting a logistic model
                                 data = dcaData, 
                                 study.design = "cohort", 
@@ -91,7 +90,7 @@ full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
               data = dcaData, 
               bootstraps = 50)
 
-#since we want to plot more than one curve, we pass a list of 'DecisionCurve' objects to the plot
+#since we want to plot more than one curve, we pass a list of 'decision_curve' objects to the plot
 plot_decision_curve( list(baseline.model, full.model), 
                    curve.names = c("Baseline model", "Full model"), xlim = c(0, 1), legend.position = "bottomright") 
 
@@ -276,7 +275,7 @@ plot_decision_curve(full.model, legend.position = "none")
 
 ## Printing estimates 
 
-DecisionCurve also outputs all calculations and point estimates when assigned to an object. 
+`decision_curve` also outputs all calculations and point estimates when assigned to an object. 
 
 ```{r, message=FALSE}
 full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,

@@ -1,8 +1,0 @@
-name: Publish Document
-title:
-account: rpubs
-server: rpubs.com
-appId: https://api.rpubs.com/api/v1/document/290471/0260dc56453241dfa7f17fc90ce7a183
-bundleId: https://api.rpubs.com/api/v1/document/290471/0260dc56453241dfa7f17fc90ce7a183
-url: http://rpubs.com/mdbrown/290471/edit
-when: 1501279704.26262
