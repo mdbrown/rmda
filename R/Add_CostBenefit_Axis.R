@@ -30,11 +30,11 @@ Add_CostBenefit_Axis <- function(xlim,
     dd <-  data.frame( "name" = c("1:1", "1:2", "1:3", "1:4", "2:3", "3:4", "1:5", "1:10", "2:5", "3:5", "4:5", "7:10", "9:10", "5:6", "1:15", "1:20", "1:25", "1:30", "1:40", "1:50", "1:60", "1:75","1:80",  "1:100",
                                   "2:1", "3:1", "4:1", "3:2", "4:3", "5:1", "10:1", "5:2", "5:3", "5:4", "10:7", "10:9", "6:5", "15:1", "20:1", "25:1", "30:1", "40:1", "50:1",  "60:1","75:1", "80:1",  "100:1"),
                        "value" = c(1/1, tmp, 1/tmp))
-
+    
     if(policy == "opt-in"){
-      dd$threshold <- dd$value/(1+dd$value)
+      dd$threshold <- (dd$value)/(dd$value + 1)
     }else{
-      dd$threshold <- (1/(1+dd$value)) ##need to ask about this
+      dd$threshold <- dd$value/(1+dd$value) #(1/(1+dd$value)) ##need to ask about this
     }
 
     dd <- dd[order(dd$threshold),]
@@ -65,18 +65,15 @@ Add_CostBenefit_Axis <- function(xlim,
   }else{
     #cost benefits are given, so we plot them.
     dd <- data.frame("name" = cost.benefits)
-
+    
     #extract data from the
     CB.split <- strsplit(as.character(cost.benefits), split = ":")
     C <- sapply(CB.split, function(x) as.numeric(x[1]))
     B <- sapply(CB.split, function(x) as.numeric(x[2]))
-
     dd$value = C/B
-    if(policy == "opt-in"){
-      dd$threshold <- dd$value/(1+dd$value)
-    }else{
-      dd$threshold <- (1/(1+dd$value))
-    }
+    dd$threshold <- (dd$value/(1+dd$value))
+   
+    
     dd <- dd[order(dd$threshold),]
     dd.sub <- subset(dd, threshold >= min(xlim) & threshold <= max(xlim))
     #check to make sure there are default choices within xlim

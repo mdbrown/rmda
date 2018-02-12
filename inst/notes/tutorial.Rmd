@@ -145,7 +145,8 @@ opt.out.dc <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,
               policy = 'opt-out') #set policy = 'opt-out' (default is 'opt-in')
 
 
-plot_decision_curve( opt.out.dc,  xlim = c(0, 1),
+plot_decision_curve( opt.out.dc,  xlim = c(0, 1), ylim = c(-.2,2), 
+                     standardize = FALSE, 
                      curve.names = "model", legend = 'bottomright') 
 ```
 

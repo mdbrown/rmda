@@ -118,7 +118,7 @@ plot_decision_curve <- function(x, curve.names,
   if(missing(ylab)) ylab <- ifelse(standardize, "Standardized Net Benefit", "Net Benefit")
   policy = ifelse(class(x)=="decision_curve", x$policy, x[[1]]$policy)
   if(missing(xlab)) xlab <- ifelse(policy  == 'opt-in', "High Risk Threshold", "Low Risk Threshold")
-  if(missing(cost.benefit.xlab)) cost.benefit.xlab <- ifelse(policy == "opt-in", "Opt-in Cost:Benefit Ratio", "Opt-out Cost:Benefit Ratio")
+  if(missing(cost.benefit.xlab)) cost.benefit.xlab <- "Cost:Benefit Ratio"
     if(missing(ylim)){
 
     if(standardize) ylim = c(-1, 1)

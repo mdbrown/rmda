@@ -58,7 +58,10 @@ if(is.null(casecontrol.rho)){
    #standardized net benefit
    snb = nb/rho
   }else{
-    nb = tnf*(1-rho) - fnf*rho*((1-rH)/rH)#tpf*rho - (rH/(1-rH))*(1-rho)*fpf - (rho - (rH/(1-rH))*(1-rho)) #check other formulation (in terms of tnr/fnr) to make sure the estimators match.
+    nb = tnf*(1-rho) - fnf*rho*((1-rH)/rH)
+    #tnf*(1-rho)*(rH/(1-rH)) - fnf*rho
+      #
+      #tpf*rho - (rH/(1-rH))*(1-rho)*fpf - (rho - (rH/(1-rH))*(1-rho)) #check other formulation (in terms of tnr/fnr) to make sure the estimators match.
     #standardized net benefit
     snb = nb/(1-rho)
     }
@@ -137,7 +140,8 @@ costbenefit_to_threshold <- function(CB, policy){
   if(policy == "opt-in"){
       out <- CB/(1+CB)
   }else{
-    out <- 1/(1+CB)
+    out <- CB/(1+CB)
+    #out <- 1/(1+CB)
   }
 out
 }
@@ -147,7 +151,8 @@ threshold_to_costbenefit <- function(rh, policy){
   if(policy == "opt-in"){
     out <-  rh/(1-rh)
   }else{
-    out <- (1-rh)/rh
+    out <-  rh/(1-rh)
+    #out <- (1-rh)/rh
   }
   out
 }
