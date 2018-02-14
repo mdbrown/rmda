@@ -37,7 +37,7 @@ summary.decision_curve <- function(object, ..., measure = c("sNB", "NB", "TPR", 
   measure.name <- as.character(measure.names.df[match(measure, measure.names.df$measure), "measure.names"])
 
   #if this is true, confidence intervals have been calculated
-  conf.int <- ncol(x$derived.data) > 10
+  conf.int <- is.numeric(x$confidence.intervals)
   model <- NULL #appease check
   xx.wide <- cast(x$derived.data, thresholds+cost.benefit.ratio~model, value = measure)
   #need to add prob.high risk from the formula and convert to percent
