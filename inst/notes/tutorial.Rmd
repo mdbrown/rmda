@@ -1,9 +1,9 @@
 ---
 title: "Risk Model Decision Analysis"
 subtitle: "A tutorial for R package `rmda`"
-version: 1.4
+version: 1.8
 author: "Marshall Brown"
-date: "Aug 1, 2017"
+date: "March 20, 2018"
 output:
   html_document: 
     theme: cerulean
@@ -14,7 +14,7 @@ output:
 
 The package `rmda` (risk model decision analysis) provides tools to evaluate the value of using a risk prediction instrument to decide treatment or intervention (versus no treatment or intervention).  Given one or more risk prediction instruments (risk models) that estimate the probability of a binary outcome, `rmda` provides functions to estimate and display decision curves and other figures that help assess the population impact of using a risk model for clinical decision making.   Here, “population” refers to the relevant patient population.
 
-Decision curves display estimates of the (standardized) net benefit over a range of probability thresholds used to categorize observations as 'high risk.' The curves help evaluate a treatment policy that recommends treatment for patients who are estimated to be ‘high risk’ by comparing the population impact of a risk-based policy to “treat all” and “treat none” intervention policies.  Curves can be estimated using data from a prospective cohort.  In addition, `rmda` can estimate decision curves using data from a case-control study if an estimate of the population outcome prevalence is available.  Version 1.4 of the package provides an alternative framing of the decision problem for situations where treatment is the standard-of-care and a risk model might be used to recommend that low-risk patients (i.e., patients below some risk threshold) opt out of treatment.
+Decision curves display estimates of the (standardized) net benefit over a range of probability thresholds used to categorize observations as 'high risk.' The curves help evaluate a treatment policy that recommends treatment for patients who are estimated to be ‘high risk’ by comparing the population impact of a risk-based policy to “treat all” and “treat none” intervention policies.  Curves can be estimated using data from a prospective cohort.  In addition, `rmda` can estimate decision curves using data from a case-control study if an estimate of the population outcome prevalence is available.  Version 1.5 and higher of the package provides an alternative framing of the decision problem for situations where treatment is the standard-of-care and a risk model might be used to recommend that low-risk patients (i.e., patients below some risk threshold) opt-out of treatment.
 
 Confidence intervals calculated using the bootstrap can be computed and displayed. A wrapper function to calculate cross-validated curves using k-fold cross-validation is also provided. 
 
@@ -43,7 +43,7 @@ You may also download the current version of the package here:
 navigate to the source package and use 
 
 ```{r, eval = FALSE}
-install.packages("../rmda_1.4.tar.gz", repos = NULL, type = "source")
+install.packages("../rmda_1.5.tar.gz", repos = NULL, type = "source")
 ```
 
 or install the package directly from github using devtools. 
@@ -118,21 +118,21 @@ plot_clinical_impact(full.model, xlim = c(0, .4),
 
 ## The net benefit of an 'opt-out' vs. 'opt-in' policy 
 
-For many clinical contexts, a risk model is used in one of two ways. In the first setting, the standard-of-care for a population is to assign a particular 'treatment' to no one. Clinicians then use a risk model to categorize patients as 'high-risk', with the recommendation to treat high-risk patients with some intervention. We refer to this use of a risk model as an 'opt-in' policy. The relative costs and benefits of such a policy are implicitly specified in terms of the 'cost' of treating an individual without the event (a control) compared to the 'benefit' of treating an observation with the event (a case).
+For many clinical contexts, a risk model is used in one of two ways. In the first setting, the standard-of-care for a population is to assign a particular 'treatment' to no one. Clinicians then use a risk model to categorize patients as 'high-risk', with the recommendation to treat high-risk patients with some intervention. We refer to this use of a risk model as an 'opt-in' policy. The relative costs and benefits of such a policy are specified as the 'cost' of treating an individual without the event (a control) compared to the 'benefit' of treating an observation with the event (a case).
 
-The net benefit for an 'opt-in' policy is most naturally defined in terms of the true and false positive rates, the outcome prevalence $\rho$, and the 'high-risk' threshold $r_H$. 
+The standardized net benefit for an 'opt-in' policy is defined in terms of the true and false positive rates, the outcome prevalence $\rho$, and the risk threshold $r$. 
  
 
 $$ 
-NB^{(opt-in)}(r_H) = \rho TPR(r_H) - ({1-\rho})\Big(\frac{r_H}{1-r_H}\Big)FPR(r_H)
+sNB^{(opt-in)}(r) = TPR(r) - \Big(\frac{1-\rho}{\rho}\Big)\Big(\frac{r}{1-r}\Big)FPR(r)
 $$
-Alternatively, there are contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are 'low-risk' and recommend that those patients 'opt-out' of treatment. For this formulation, the relative costs and benefits are (implicitly) specified as the 'cost' of **not** treating a case, and the benefit of **not** treating a control.
+Alternatively, there are contexts where the standard-of-care is to recommend a treatment to an entire patient population. The potential use of a risk model in this setting is to identify patients who are 'low-risk' and recommend that those patients 'opt-out' of treatment. 
 
-The net benefit for this type of 'opt-out' policy is most naturally defined in terms of the true and false negative rates, the outcome prevalence \rho, and the 'low-risk' threshold $r_L$: 
+The standardized net benefit for an 'opt-out' policy is defined in terms of the true and false negative rates, the outcome prevalence \rho, and the risk threshold $r$: 
 
 
 $$ 
-NB^{(opt-out)}(r_H) = (1-\rho) TNR(r_L) - {\rho}\Big(\frac{1-r_L}{r_L}\Big)FNR(r_L)
+sNB^{(opt-out)}(r) =TNR(r) - \Big(\frac{\rho}{  1-\rho} \Big)\Big(\frac{1-r}{r}\Big)FNR(r)
 $$
 
 So far in this tutorial we have calculated the net benefit curves using the default `policy = 'opt-in'` setting. To calculate the net benefit for an 'opt-out' policy, we set  `policy = 'opt-out'` when using the `decision_curve` function. 
@@ -151,7 +151,7 @@ plot_decision_curve( opt.out.dc,  xlim = c(0, 1), ylim = c(-.2,2),
 ```
 
 
-The clinical impact plots are also influenced by the `policy` argument.  When we set policy = 'opt-out'  the clinical impact plot displays the number low risk instead of the number high risk.  
+The clinical impact plots are also influenced by the `policy` argument.  When we set policy = 'opt-out'  the clinical impact plot displays the number considered low risk at each threshold instead of the number high risk.  
 
 ```{r, message=FALSE}
 
@@ -370,3 +370,6 @@ plot_decision_curve( list(full.model_apparent, full.model_cv),
 plot_clinical_impact(full.model_cv, legend.position = "bottomright") 
 ```
 
+## References 
+
+Kerr KF, Brown MD, Zhu K, Janes H. *Assessing the Clinical Impact of Risk Prediction Models With Decision Curves: Guidance for Correct Interpretation and Appropriate Use.* J Clin Oncol. 2016; 34(21):2534-40.
