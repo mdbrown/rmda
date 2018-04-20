@@ -372,4 +372,6 @@ plot_clinical_impact(full.model_cv, legend.position = "bottomright")
 
 ## References 
 
+Vickers AJ, Elkin EB. *Decision curve analysis: a novel method for evaluating prediction models.* Medical Decision Making. 2006 Nov-Dec;26(6):565-74.
+
 Kerr KF, Brown MD, Zhu K, Janes H. *Assessing the Clinical Impact of Risk Prediction Models With Decision Curves: Guidance for Correct Interpretation and Appropriate Use.* J Clin Oncol. 2016; 34(21):2534-40.

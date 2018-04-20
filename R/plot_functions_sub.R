@@ -36,8 +36,8 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
       ci.list <- sapply(x, FUN = function(x) x$confidence.intervals)
       ci.list.log <- sapply(x, FUN = function(x) is.numeric(x$confidence.intervals))
       ci.list.num <- as.numeric(ci.list[ci.list.log])
-
-      if(length(unique(ci.list.num))!=1){warning("Confidence intervals of different sizes are being plotted on the same figure.")}
+ 
+      if(length(unique(ci.list.num))>1){warning("Confidence intervals of different sizes are being plotted on the same figure.")}
 
       confidence.intervals <- ifelse(any(ci.list.log), 1, "none")
     }else{
