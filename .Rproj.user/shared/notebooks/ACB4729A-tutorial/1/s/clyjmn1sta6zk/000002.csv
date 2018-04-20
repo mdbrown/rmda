@@ -1,0 +1,4 @@
+"0","library(rmda)"
+"0","#load simulated data "
+"0","data(dcaData)"
+"0","head(dcaData)"

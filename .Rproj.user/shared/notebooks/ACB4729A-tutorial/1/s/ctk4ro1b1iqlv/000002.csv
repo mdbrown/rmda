@@ -1,0 +1,7 @@
+"0","set.seed(123)"
+"0","full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,"
+"0","              data = dcaData, "
+"0","              bootstraps = 50)"
+"0","#since we want to plot more than one curve, we pass a list of 'decision_curve' objects to the plot"
+"0","plot_decision_curve( list(baseline.model, full.model), "
+"0","                   curve.names = c(""Baseline model"", ""Full model""), xlim = c(0, 1), legend.position = ""bottomright"") "

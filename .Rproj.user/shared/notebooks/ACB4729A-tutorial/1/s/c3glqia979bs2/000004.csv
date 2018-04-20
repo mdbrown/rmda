@@ -1,0 +1,8 @@
+"0","plot_decision_curve( list(full.model_apparent, full.model_cv), 
+                   curve.names = c(""Apparent curve"", ""Cross-validated curve""),
+                   col = c(""red"", ""blue""), 
+                   lty = c(2,1), 
+                   lwd = c(3,2, 2, 1), 
+                   legend.position = ""bottomright"") 
+"
+"2","Confidence intervals of different sizes are being plotted on the same figure."

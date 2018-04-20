@@ -1,0 +1,4 @@
+"0","full.model <- decision_curve(Cancer~Age + Female + Smokes + Marker1 + Marker2,"
+"0","                            data = dcaData, "
+"0","                            thresholds = seq(.01, .99, by = .05),"
+"0","                            bootstraps = 25, policy = ""opt-out"") "

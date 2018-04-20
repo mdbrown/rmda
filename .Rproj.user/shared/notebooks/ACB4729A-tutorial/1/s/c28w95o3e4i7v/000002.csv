@@ -1,0 +1,6 @@
+"0","plot_decision_curve( list(baseline.model, full.model), "
+"0","                   curve.names = c(""Baseline model"", ""Full model""),"
+"0","                   col = c(""blue"", ""red""), "
+"0","                   confidence.intervals = FALSE,  #remove confidence intervals"
+"0","                   cost.benefit.axis = FALSE, #remove cost benefit axis"
+"0","                   legend.position = ""none"") #remove the legend "
