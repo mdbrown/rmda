@@ -121,7 +121,7 @@ plot_decision_curve <- function(x, curve.names,
   if(missing(cost.benefit.xlab)) cost.benefit.xlab <- "Cost:Benefit Ratio"
     if(missing(ylim)){
 
-    if(standardize) ylim = c(-1, 1)
+    if(standardize) ylim = c(-0.05, 1)
     else ylim = c(-0.05, 1.1*max(dc.data[["NB"]][is.finite(dc.data[["NB"]])]))
 
   }

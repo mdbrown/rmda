@@ -1,3 +1,9 @@
+rmda v 1.6
+========================
+* update default y-axis limits for sNB plots to show positive values only. 
+* print a message warning of bias due to overfitting when the same data is used to fit and evaluate a model using decision_curve. 
+* fix a bug where CI's for the policy of treating 'None' were not plotted when policy = "opt-out". 
+
 rmda v 1.5
 ========================
 * Update the cost:benefit axes labels for decision curves generated for an 'opt-out' treatment policy so that the definition of costs and benefits are consistent for opt-out vs. opt-in policies. 

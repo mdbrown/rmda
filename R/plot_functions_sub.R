@@ -163,6 +163,7 @@ plot_generic<- function(xx, predictors, value, plotNew,
         lwd = lwd[length(predictors)+ 1])
 
   if(is.numeric(confidence.intervals)){
+    if(policy == "opt-in"){
     lines(xx.lower[,c("thresholds", "All")],
           col = col[length(predictors)+ 1],
           lty = lty[length(predictors)+ 1],
@@ -172,6 +173,17 @@ plot_generic<- function(xx, predictors, value, plotNew,
           col = col[length(predictors)+ 1],
           lty = lty[length(predictors)+ 1],
           lwd = lwd[length(predictors)+ 1]/2)
+    }else{
+      lines(xx.lower[,c("thresholds", "None")],
+            col = col[length(predictors)+ 2],
+            lty = lty[length(predictors)+ 2],
+            lwd = lwd[length(predictors)+ 2]/2)
+      
+      lines(xx.upper[,c("thresholds", "None")],
+            col = col[length(predictors)+ 2],
+            lty = lty[length(predictors)+ 2],
+            lwd = lwd[length(predictors)+ 2]/2)
+    }
 
   }
   }

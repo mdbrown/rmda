@@ -145,6 +145,8 @@ decision_curve <- function(formula,
     provided.risks <-  data[[Reduce(paste, deparse(formula[[3]]))]] #get the name of the fitted risk variable from formula.
     if(min(provided.risks) < 0 | max(provided.risks) > 1) stop('When fitted.risks = TRUE, all risks provided must be between 0 and 1.')
 
+  }else{
+   #print a message about potential bias due to overfitting when the same data is used to fit/evaluate a model.
   }
   #########
   ## End Checks
@@ -244,7 +246,7 @@ decision_curve <- function(formula,
       alpha = 1- confidence.intervals
 
       xx <- NULL #appease check
-
+     
       #go through each measure and get the quantiles from the bootstrap distribution at each threshold
       for(rtn in names(boot.data[[1]][-1])){
         #collate the data from the measure estimates across bootstrap replicates
