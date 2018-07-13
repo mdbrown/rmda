@@ -102,8 +102,15 @@ summary.decision_curve <- function(object, ..., measure = c("sNB", "NB", "TPR", 
   if(conf.int){
     cat(paste0("\n", measure.name, " (", round(100*x$confidence.intervals),  "% Confidence Intervals):"))
 
-    not.preds <- match(c("risk\nthreshold", "cost:benefit\n ratio",  "None"),
-                       names(out))
+   
+    if(policy == 'opt-in'){
+      not.preds <- match(c("risk\nthreshold", "cost:benefit\n ratio",  "None"),
+                         names(out))
+    }else{
+      not.preds <- match(c("risk\nthreshold", "cost:benefit\n ratio",  "All"),
+                         names(out))
+    }
+   
     n.preds <- ncol(out) - length(not.preds)
     for( i in 1:n.preds){
        out[,-c(not.preds)][i] <- paste0(out[,-c(not.preds)][[i]],

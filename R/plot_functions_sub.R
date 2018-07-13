@@ -44,8 +44,11 @@ preparePlotData   <- function(x, curve.names, confidence.intervals){
       confidence.intervals <- ifelse(confidence.intervals, 1, "none")
     }
 
-    message("Note: When multiple decision curves are plotted, decision curves for 'All' are calculated using the first DecisionCurve in the list provided.")
-
+    if(policy.vec[1] == "opt-in"){
+      message("Note: When multiple decision curves are plotted, decision curves for 'All' are calculated using the prevalence from the first DecisionCurve object in the list provided.")
+    }else{
+      message("Note: When multiple decision curves are plotted, decision curves for 'None' are calculated using the prevalence from the first DecisionCurve object in the list provided.")
+    }
     model <- NULL #appease check
     #multiple dc's to plot
     #pull the "all' and 'none' curves from the first element in x
@@ -164,6 +167,7 @@ plot_generic<- function(xx, predictors, value, plotNew,
 
   if(is.numeric(confidence.intervals)){
     if(policy == "opt-in"){
+      
     lines(xx.lower[,c("thresholds", "All")],
           col = col[length(predictors)+ 1],
           lty = lty[length(predictors)+ 1],
@@ -173,6 +177,8 @@ plot_generic<- function(xx, predictors, value, plotNew,
           col = col[length(predictors)+ 1],
           lty = lty[length(predictors)+ 1],
           lwd = lwd[length(predictors)+ 1]/2)
+    
+    
     }else{
       lines(xx.lower[,c("thresholds", "None")],
             col = col[length(predictors)+ 2],
