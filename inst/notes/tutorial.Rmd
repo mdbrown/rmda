@@ -72,7 +72,7 @@ First we use the function `decision_curve` to create a decision curve object for
 ```{r, message=FALSE, warning = FALSE}
 set.seed(123)
 #first use rmda with the default settings (set bootstraps = 50 here to reduce computation time). 
-baseline.model <- decision_curve(Cancer~Age + Female + Smokes, #fitting a logistic model
+baseline.model <- decision_curve( Cancer~Age + Female + Smokes, #fitting a logistic model
                                 data = dcaData, 
                                 study.design = "cohort", 
                                 policy = "opt-in",  #default 

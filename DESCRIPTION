@@ -1,7 +1,7 @@
 Package: rmda
 Type: Package
 Title: Risk Model Decision Analysis
-Version: 1.6
+Version: 1.7
 Date: 2018-05-30
 Author: Marshall Brown
 Maintainer: Marshall Brown <mdbrown@fredhutch.org>
