@@ -285,6 +285,7 @@ plot_roc_components <- function(x,
 #' @param ylab label of y-axis.
 #' @param cost.benefit.xlab label of cost:benefit ratio axis.
 #' @param legend.position character vector giving position of legend. Options are "topright" (default), "right", "bottomright", "bottom", "bottomleft", "left", "topleft", "top", or "none".
+#' @param plot.grid plot grid lines in the panel background (default = TRUE). 
 #' @param ... other options directly send to plot()
 #'
 #' @examples
@@ -314,6 +315,7 @@ plot_clinical_impact <- function(x,
                             xlab, ylab,
                             cost.benefit.xlab = "Cost:Benefit Ratio",
                             legend.position = c("topright", "right", "bottomright", "bottom", "bottomleft", "left", "topleft", "top", "none"),
+                            plot.grid = TRUE, 
                             ...){
 
   if(class(x) != "decision_curve") stop("x must be an object of class 'decision_curve'-- plot_roc_components is only functional for one decision curve at a time.")
@@ -370,6 +372,7 @@ plot_clinical_impact <- function(x,
                legend.position = "none",
                population.size = population.size,
                policy = x$policy,
+               plot.grid = plot.grid, 
                ...) #add my own legend
 
   plot_generic(xx = dc.data,
@@ -394,6 +397,7 @@ plot_clinical_impact <- function(x,
                impact.legend.2 = (x$policy == "opt-out"),
                population.size = population.size,
                policy = x$policy,
+               plot.grid = plot.grid, 
                ...)
 
 }

@@ -115,7 +115,8 @@ plot_generic<- function(xx, predictors, value, plotNew,
                         impact.legend = FALSE,
                         impact.legend.2 = FALSE,
                         population.size = 1000,
-                        policy = policy, ...){
+                        policy = policy,
+                        plot.grid  = TRUE, ...){
 ## xx is output from get_DecisionCurve,
 ## others are directly from the function call
 
@@ -150,7 +151,7 @@ plot_generic<- function(xx, predictors, value, plotNew,
   plot(xx.wide$thresholds, xx.wide$None, type = "n", ylim = ylim,
        col = "black", xlim = xlim,  xlab = "", ylab = ylab, frame.plot = FALSE, ...)
 
-  grid(lty = 1, col = "grey92")
+  if(plot.grid) grid(lty = 1, col = "grey92")
   }
 
   if(is.element(value, c("NB", "sNB"))){
